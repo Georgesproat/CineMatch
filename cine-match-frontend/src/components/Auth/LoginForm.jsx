@@ -1,26 +1,10 @@
 import React, { useState } from "react";
 import { Box, Button, Container, TextField, Typography, useTheme } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    marginTop: theme.spacing(5),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  form: {
-    width: "100%", // Full width
-    marginTop: theme.spacing(2),
-  },
-  button: {
-    marginTop: theme.spacing(2),
-  },
-}));
 
 function LoginForm() {
-  const classes = useStyles();
-  const theme = useTheme(); // Get the current theme
+  
+  
 
   const [formData, setFormData] = useState({
     email: "",

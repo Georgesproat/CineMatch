@@ -1,9 +1,9 @@
-import React from "react";
 import React, { useState } from "react";
 import { AppBar, Tab, Tabs, Toolbar } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
-import lightTheme from "../themes/lightTheme";
-import darkTheme from "../themes/darkTheme";
+import { Typography, Switch } from "@mui/material";
+import lightTheme from "..//../theme/lightTheme";
+import darkTheme from "..//../theme/darkTheme";
 
 const Navbar = () => {
   const location = useLocation();

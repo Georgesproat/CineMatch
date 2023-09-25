@@ -1,14 +1,16 @@
 import React from "react";
 import UserProfile from "../components/UserProfile/UserProfile";
-import { useAuth } from "../authContext";
-import { Redirect } from "react-router-dom";
+import { useAuth } from "../context/authContext";
+import { useNavigate } from "react-router-dom";
 
 function UserProfilePage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   if (!user) {
-    // Redirect to the login page if the user is not authenticated
-    return <Redirect to="/login" />;
+    // Navigate to the login page if the user is not authenticated
+    navigate("/login");
+    return null; // Return null to prevent rendering the UserProfilePage component
   }
 
   return (

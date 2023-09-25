@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import Navbar from "./Navbar";
+import Navbar from "./components/Navbar/Navbar";
 import AppRoutes from "./routes/AppRoutes";
-import lightTheme from "./themes/lightTheme";
-import darkTheme from "./themes/darkTheme";
+import lightTheme from "./theme/lightTheme";
+import darkTheme from "./theme/darkTheme";
 
 function App() {
   const [theme, setTheme] = useState(lightTheme);

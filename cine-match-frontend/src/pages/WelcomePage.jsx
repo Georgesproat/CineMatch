@@ -1,21 +1,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Container, Typography, Button } from "@mui/material";
 
 function WelcomePage() {
   return (
-    <div>
-      <h1>Welcome to CineMatch!</h1>
-      <p>
+    <Container>
+      <Typography variant="h1">Welcome to CineMatch!</Typography>
+      <Typography variant="body1">
         CineMatch is a platform to discover and rate movies. Join our community
         of movie enthusiasts!
-      </p>
+      </Typography>
       <Link to="/login">
-        <button>Login</button>
+        <Button variant="contained">Login</Button>
       </Link>
       <Link to="/register">
-        <button>Register</button>
+        <Button variant="contained">Register</Button>
       </Link>
-    </div>
+    </Container>
   );
 }
 

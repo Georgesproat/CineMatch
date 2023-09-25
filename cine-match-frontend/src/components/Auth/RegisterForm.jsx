@@ -9,22 +9,6 @@ import {
   makeStyles
 } from "@mui/material";
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    marginTop: theme.spacing(5),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  },
-  form: {
-    width: "100%",
-    marginTop: theme.spacing(2)
-  },
-  button: {
-    marginTop: theme.spacing(2)
-  }
-}));
-
 function RegisterForm() {
   const classes = useStyles();
   const theme = useTheme();
