@@ -1,10 +1,30 @@
 import React, { useState } from "react";
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import { Box, Button, Container, TextField, Typography, useTheme } from "@mui/material";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    marginTop: theme.spacing(5),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  form: {
+    width: "100%", // Full width
+    marginTop: theme.spacing(2),
+  },
+  button: {
+    marginTop: theme.spacing(2),
+  },
+}));
 
 function LoginForm() {
+  const classes = useStyles();
+  const theme = useTheme(); // Get the current theme
+
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const handleInputChange = (e) => {
@@ -17,9 +37,9 @@ function LoginForm() {
       const response = await fetch("/api/user/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
@@ -35,18 +55,11 @@ function LoginForm() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 5,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center"
-        }}
-      >
-        <Typography variant="h4" component="h2">
-          Login
-        </Typography>
+    <Container maxWidth="sm" className={classes.container}>
+      <Typography variant="h4" component="h2">
+        Login
+      </Typography>
+      <form className={classes.form}>
         <TextField
           margin="normal"
           fullWidth
@@ -68,13 +81,13 @@ function LoginForm() {
         />
         <Button
           variant="contained"
-          color="primary"
+          color={theme.palette.primary.main} 
           onClick={handleLogin}
-          sx={{ marginTop: 2 }}
+          className={classes.button}
         >
           Login
         </Button>
-      </Box>
+      </form>
     </Container>
   );
 }

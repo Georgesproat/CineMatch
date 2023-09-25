@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
+import { CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import Navbar from "./Navbar";
 import AppRoutes from "./routes/AppRoutes";
-import Navbar from "./components/Navbar/Navbar";
+import lightTheme from "./themes/lightTheme";
+import darkTheme from "./themes/darkTheme";
 
 function App() {
+  const [theme, setTheme] = useState(lightTheme);
+
+  const toggleTheme = () => {
+    setTheme(theme === lightTheme ? darkTheme : lightTheme);
+  };
+
   return (
-    <div>
-      <Navbar />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Navbar toggleTheme={toggleTheme} />
       <AppRoutes />
-    </div>
+    </ThemeProvider>
   );
 }
 
