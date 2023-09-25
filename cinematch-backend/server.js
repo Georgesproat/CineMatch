@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 const mongoDBURI = "mongodb://127.0.0.1/CineMatch";
 const userRoutes = require("./routes/userRoutes");
 
@@ -20,8 +21,16 @@ db.once("open", () => {
   console.log("Connected to MongoDB!");
 });
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "../cine-match-frontend/dist")));
+
 // Mount user routes
 app.use("/api/user", userRoutes);
+
+// Handle all other requests by serving the frontend's HTML file
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../cine-match-frontend/dist/index.html"));
+});
 
 const PORT = process.env.PORT || 3000;
 

@@ -1,38 +1,81 @@
 import React, { useState } from "react";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
 
 function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("/api/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Implement login logic here (e.g., send a POST request to the backend)
+      if (response.ok) {
+        // Login was successful, handle as needed
+        console.log("Login successful!");
+      } else {
+        // Handle login error
+        console.error("Login failed");
+      }
+    } catch (error) {
+      console.error("Error occurred during login:", error);
+    }
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <div>
-        <label>Email:</label>
-        <input type="email" value={email} onChange={handleEmailChange} />
-      </div>
-      <div>
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={handlePasswordChange}
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          marginTop: 5,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center"
+        }}
+      >
+        <Typography variant="h4" component="h2">
+          Login
+        </Typography>
+        <TextField
+          margin="normal"
+          fullWidth
+          variant="outlined"
+          label="Email"
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
         />
-      </div>
-      <button type="submit">Login</button>
-    </form>
+        <TextField
+          margin="normal"
+          fullWidth
+          variant="outlined"
+          label="Password"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleInputChange}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleLogin}
+          sx={{ marginTop: 2 }}
+        >
+          Login
+        </Button>
+      </Box>
+    </Container>
   );
 }
 

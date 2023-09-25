@@ -1,19 +1,32 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { AppBar, Tab, Tabs, Toolbar } from "@mui/material";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
+  const location = useLocation();
+
+  const tabValue = (pathname) => {
+    switch (pathname) {
+      case "/":
+        return 0;
+      case "/discover":
+        return 1;
+      // Add more cases for other sections as needed
+      default:
+        return false;
+    }
+  };
+
   return (
-    <nav>
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-        <li>
-          <Link to="/movies">Movies</Link>
-        </li>
-        {/* Add more links for other sections */}
-      </ul>
-    </nav>
+    <AppBar position="static">
+      <Toolbar>
+        <Tabs value={tabValue(location.pathname)} aria-label="navigation tabs">
+          <Tab label="Home" component={Link} to="/" />
+          <Tab label="Discover" component={Link} to="/discover" />
+          {/* Add more tabs for other sections as needed */}
+        </Tabs>
+      </Toolbar>
+    </AppBar>
   );
 };
 
