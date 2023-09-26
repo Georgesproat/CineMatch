@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
+
+
 //User Registration Controller
 const register = async (req, res) => {
   // Access and validate user input

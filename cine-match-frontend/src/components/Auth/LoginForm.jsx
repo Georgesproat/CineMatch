@@ -1,14 +1,25 @@
 import React, { useState } from "react";
-import { Box, Button, Container, TextField, Typography, useTheme } from "@mui/material";
+import { Container, styled } from "@mui/system";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField"; // Import TextField from @mui/material
+import Button from "@mui/material/Button";
 
+const StyledContainer = styled(Container)(({ theme }) => ({
+  // Define your container styles here
+}));
+
+const StyledForm = styled("form")(({ theme }) => ({
+  // Define your form styles here
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  // Define your button styles here
+}));
 
 function LoginForm() {
-  
-  
-
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
+    password: ""
   });
 
   const handleInputChange = (e) => {
@@ -21,9 +32,9 @@ function LoginForm() {
       const response = await fetch("/api/user/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData)
       });
 
       if (response.ok) {
@@ -39,11 +50,11 @@ function LoginForm() {
   };
 
   return (
-    <Container maxWidth="sm" className={classes.container}>
+    <StyledContainer maxWidth="sm">
       <Typography variant="h4" component="h2">
         Login
       </Typography>
-      <form className={classes.form}>
+      <StyledForm>
         <TextField
           margin="normal"
           fullWidth
@@ -63,16 +74,11 @@ function LoginForm() {
           value={formData.password}
           onChange={handleInputChange}
         />
-        <Button
-          variant="contained"
-          color={theme.palette.primary.main} 
-          onClick={handleLogin}
-          className={classes.button}
-        >
+        <StyledButton variant="contained" onClick={handleLogin}>
           Login
-        </Button>
-      </form>
-    </Container>
+        </StyledButton>
+      </StyledForm>
+    </StyledContainer>
   );
 }
 

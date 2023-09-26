@@ -1,22 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
+import MovieGrid from "../components/MovieGrid/MovieGrid"; 
 
 function Discover() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  // const { user } = useAuth();
+  // const navigate = useNavigate();
 
-  if (!user) {
-    // Redirect to the login page if the user is not authenticated
-    navigate("/login");
-    // Return null or a loading indicator while navigating
-    return null;
-  }
+  // useEffect(() => {
+  //   // Check if the user is not authenticated and redirect to the login page
+  //   if (!user) {
+  //     navigate("/login");
+  //   }
+  // }, [user, navigate]);
 
   return (
     <div className="discover">
       <h2>Discover Movies</h2>
-      {/* Add content for discovering movies */}
+      <MovieGrid page={1} moviesPerPage={20} />
     </div>
   );
 }

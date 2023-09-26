@@ -1,5 +1,20 @@
 const Movie = require("../models/movie");
 
+// Get a movie by its ID
+const getMovieById = async (req, res) => {
+
+  console.log(req.params.movieId)
+  // try {
+  //   const movie = await Movie.findById(req.params.movieId); 
+  //   if (!movie) {
+  //     return res.status(404).json({ error: "Movie not found" });
+  //   }
+  //   res.status(200).json(movie);
+  // } catch (error) {
+  //   res.status(500).json({ error: error.message });
+  // }
+};
+
 // Submit a rating and review for a movie
 const submitRatingAndReview = async (req, res) => {
   try {
@@ -58,5 +73,6 @@ const getRatingsAndReviews = async (req, res) => {
 
 module.exports = {
   getRatingsAndReviews,
-  submitRatingAndReview
+  submitRatingAndReview,
+  getMovieById
 };

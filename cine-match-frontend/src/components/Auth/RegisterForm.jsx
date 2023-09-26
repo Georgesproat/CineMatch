@@ -1,18 +1,25 @@
 import React, { useState } from "react";
 import {
-  Box,
-  Button,
   Container,
+  styled,
   TextField,
   Typography,
-  useTheme,
-  makeStyles
+  Button
 } from "@mui/material";
 
-function RegisterForm() {
-  const classes = useStyles();
-  const theme = useTheme();
+const StyledContainer = styled(Container)(({ theme }) => ({
+  // Define your container styles here
+}));
 
+const StyledForm = styled("form")(({ theme }) => ({
+  // Define your form styles here
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  // Define your button styles here
+}));
+
+function RegisterForm() {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -48,11 +55,11 @@ function RegisterForm() {
   };
 
   return (
-    <Container maxWidth="sm" className={classes.container}>
+    <StyledContainer maxWidth="sm">
       <Typography variant="h4" component="h2">
         Registration
       </Typography>
-      <form className={classes.form}>
+      <StyledForm>
         <TextField
           margin="normal"
           fullWidth
@@ -81,16 +88,11 @@ function RegisterForm() {
           value={formData.password}
           onChange={handleInputChange}
         />
-        <Button
-          variant="contained"
-          color={theme.palette.primary.main}
-          onClick={handleRegistration}
-          className={classes.button}
-        >
+        <StyledButton variant="contained" onClick={handleRegistration}>
           Register
-        </Button>
-      </form>
-    </Container>
+        </StyledButton>
+      </StyledForm>
+    </StyledContainer>
   );
 }
 

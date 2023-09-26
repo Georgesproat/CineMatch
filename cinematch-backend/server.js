@@ -3,29 +3,23 @@ const mongoose = require("mongoose");
 const path = require("path");
 const mongoDBURI = "mongodb://127.0.0.1/CineMatch";
 const userRoutes = require("./routes/userRoutes");
+const movieRoutes = require("./routes/movieRoutes");
+require("dotenv").config
+let dbConnect = require("./dbConnect");
 
 const app = express();
 
-mongoose.connect(mongoDBURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
 
 // Middleware for parsing JSON request bodies
 app.use(express.json());
 
-const db = mongoose.connection;
-
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
-db.once("open", () => {
-  console.log("Connected to MongoDB!");
-});
-
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, "../cine-match-frontend/dist")));
 
 // Mount user routes
 app.use("/api/user", userRoutes);
+app.use("/api/movie", movieRoutes);
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "../cine-match-frontend/dist")));
 
 // Handle all other requests by serving the frontend's HTML file
 app.get("*", (req, res) => {
