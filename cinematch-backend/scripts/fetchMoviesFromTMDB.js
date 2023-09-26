@@ -1,102 +1,150 @@
+const mongoose = require("mongoose");
 const axios = require("axios");
-const Movie = require("../models/movie"); 
-const Credits = require("../models/credits"); 
-const CrewMember = require("../models/crewMember"); 
+const Movie = require("../models/movie");
+const Credits = require("../models/credits");
+const CrewMember = require("../models/crewMember");
 
-const apiKey = "0af1f375cc6c9924fe0cc1a1a6fb67ef";
-const language = "en-US";
+// Connect to MongoDB here
+mongoose.connect("mongodb://127.0.0.1/CineMatch", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
-async function fetchAndStoreMovies() {
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB connection error:", err);
+});
+
+mongoose.connection.once("open", async () => {
+  console.log("Connected to MongoDB");
+
   try {
-    // Fetch a list of movie IDs
-    const movieIdsResponse = await axios.get(
-      `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=${language}`
-    );
+    // Your TMDB API key
+    const apiKey = "0af1f375cc6c9924fe0cc1a1a6fb67ef";
+    const language = "en-US";
+    let page = 1; // Start with the first page
 
-    const movieIds = movieIdsResponse.data.results.map(
-      (movieData) => movieData.id
-    );
-
-    for (const movieId of movieIds) {
-      // Fetch movie details
-      const movieResponse = await axios.get(
-        `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=${language}`
-      );
-      const movieData = movieResponse.data;
-
-      // Create or update the movie in your database
-      const movie = await Movie.findOneAndUpdate(
-        { tmdbId: movieData.id },
-        {
-          title: movieData.title
-          // Map other fields from movieData to your model
-        },
-        { upsert: true, new: true }
+    while (true) {
+      // Fetch a page of movie IDs from TMDB
+      const movieIdsResponse = await axios.get(
+        `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=${language}&page=${page}`
       );
 
-      // Fetch movie credits
-      const creditsResponse = await axios.get(
-        `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${apiKey}`
+      const movieIds = movieIdsResponse.data.results.map(
+        (movieData) => movieData.id
       );
-      const creditsData = creditsResponse.data;
 
-      // Iterate through cast and crew and create/update corresponding models
-      for (const castMember of creditsData.cast) {
-        // Create or update cast members in your database
-        const cast = await CrewMember.findOneAndUpdate(
-          { tmdbId: castMember.id },
-          {
-            name: castMember.name
-            // Map other fields from castMember to your model
-          },
-          { upsert: true, new: true }
-        );
-
-        // Create or update credits for cast members and link them to the movie
-        const credit = await Credits.findOneAndUpdate(
-          { movie: movie._id, crewMember: cast._id, role: 'actor' },
-          {
-            movie: movie._id,
-            crewMember: cast._id,
-            role: 'actor' // Adjust this based on your model
-            // Map other fields from creditsData to your model
-          },
-          { upsert: true, new: true }
-        );
+      if (movieIds.length === 0) {
+        // No more pages to fetch
+        break;
       }
 
-      // Iterate through crew members and create/update corresponding models
-      for (const crewMember of creditsData.crew) {
-        // Create or update crew members in your database
-        const crew = await CrewMember.findOneAndUpdate(
-          { tmdbId: crewMember.id },
-          {
-            name: crewMember.name
-            // Map other fields from crewMember to your model
-          },
-          { upsert: true, new: true }
-        );
+      const promises = movieIds.map(async (movieId) => {
+        const [movieData, creditsData] = await Promise.all([
+          fetchMovieDetails(movieId, apiKey, language),
+          fetchCredits(movieId, apiKey)
+        ]);
 
-        // Create or update credits for crew members and link them to the movie
-        const credit = await Credits.findOneAndUpdate(
-          { movie: movie._id, crewMember: crew._id, role: crewMember.job },
-          {
-            movie: movie._id,
-            crewMember: crew._id,
-            role: crewMember.job // Adjust this based on your model
-            // Map other fields from creditsData to your model
-          },
-          { upsert: true, new: true }
-        );
-      }
+        const movie = await updateMovieInDatabase(movieData, movieId);
+        await updateCreditsInDatabase(creditsData, movie._id);
+      });
+
+      await Promise.all(promises);
+      page++; // Move to the next page
     }
 
     console.log(
-      'Movies, credits, and crew members fetched and stored successfully.'
+      "Movies, credits, and crew members fetched and stored successfully."
     );
   } catch (error) {
-    console.error('Error fetching and storing data:', error);
+    console.error("Error fetching and storing data:", error);
+  } finally {
+    // Close the MongoDB connection
+    mongoose.connection.close();
   }
+});
+
+async function fetchMovieDetails(movieId, apiKey, language) {
+  const movieResponse = await axios.get(
+    `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=${language}`
+  );
+  return movieResponse.data;
 }
 
-fetchAndStoreMovies();
+async function fetchCredits(movieId, apiKey) {
+  const creditsResponse = await axios.get(
+    `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${apiKey}`
+  );
+  return creditsResponse.data;
+}
+
+async function updateMovieInDatabase(movieData, movieId) {
+  const movie = await Movie.findOneAndUpdate(
+    { tmdbId: movieId },
+    {
+      title: movieData.title,
+      description: movieData.overview,
+      releaseYear: new Date(movieData.release_date).getFullYear(),
+      posterImageUrl: `https://image.tmdb.org/t/p/w500${movieData.poster_path}`,
+      backdropImageUrl: `https://image.tmdb.org/t/p/w1280${movieData.backdrop_path}`
+      // Add more fields as needed
+    },
+    { upsert: true, new: true }
+  );
+  return movie;
+}
+
+async function updateCreditsInDatabase(creditsData, movieId) {
+  const bulkOps = [];
+
+  for (const castMember of creditsData.cast) {
+    const cast = await CrewMember.findOneAndUpdate(
+      { tmdbId: castMember.id },
+      {
+        name: castMember.name,
+        profileImageUrl: `https://image.tmdb.org/t/p/w500${castMember.profile_path}`
+        // Add more fields as needed
+      },
+      { upsert: true, new: true }
+    );
+
+    bulkOps.push({
+      updateOne: {
+        filter: { movie: movieId, crewMember: cast._id, role: "actor" },
+        update: {
+          movie: movieId,
+          crewMember: cast._id,
+          role: "actor" // Adjust this based on your model
+          // Map other fields from creditsData to your model
+        },
+        upsert: true
+      }
+    });
+  }
+
+  for (const crewMember of creditsData.crew) {
+    const crew = await CrewMember.findOneAndUpdate(
+      { tmdbId: crewMember.id },
+      {
+        name: crewMember.name,
+        profileImageUrl: `https://image.tmdb.org/t/p/w500${crewMember.profile_path}`
+        // Add more fields as needed
+      },
+      { upsert: true, new: true }
+    );
+
+    bulkOps.push({
+      updateOne: {
+        filter: { movie: movieId, crewMember: crew._id, role: crewMember.job },
+        update: {
+          movie: movieId,
+          crewMember: crew._id,
+          role: crewMember.job // Adjust this based on your model
+          // Map other fields from creditsData to your model
+        },
+        upsert: true
+      }
+    });
+  }
+
+  await Credits.bulkWrite(bulkOps);
+}
