@@ -1,18 +1,46 @@
 const Movie = require("../models/movie");
 
+// // Get a movie by its ID
+// const getMovieById = async (req, res) => {
+
+//   console.log(req.params.movieId)
+//   // try {
+//   //   const movie = await Movie.findById(req.params.movieId); 
+//   //   if (!movie) {
+//   //     return res.status(404).json({ error: "Movie not found" });
+//   //   }
+//   //   res.status(200).json(movie);
+//   // } catch (error) {
+//   //   res.status(500).json({ error: error.message });
+//   // }
+// };
+
 // Get a movie by its ID
 const getMovieById = async (req, res) => {
+  try {
+    const movieId = req.params.movieId;
+    
+    if (!movieId) {
+      return res.status(400).json({ error: "Movie ID is missing in the request" });
+    }
 
-  console.log(req.params.movieId)
-  // try {
-  //   const movie = await Movie.findById(req.params.movieId); 
-  //   if (!movie) {
-  //     return res.status(404).json({ error: "Movie not found" });
-  //   }
-  //   res.status(200).json(movie);
-  // } catch (error) {
-  //   res.status(500).json({ error: error.message });
-  // }
+    const movie = await Movie.findById(movieId);
+
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    res.status(200).json(movie);
+  } catch (error) {
+    console.error("Error in getMovieById:", error);
+
+    if (error instanceof mongoose.Error.CastError) {
+      // Handle invalid ObjectId format
+      return res.status(400).json({ error: "Invalid movie ID format" });
+    }
+
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 // Submit a rating and review for a movie

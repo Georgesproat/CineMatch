@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const Movie = require("../models/movie")
 const movieController = require("../controllers/movieController");
 
 // Route to get a movie by ID
@@ -7,10 +8,12 @@ const movieController = require("../controllers/movieController");
 // res.send("test")}
 // // movieController.getMovieById
 // ); 
-router.get("/", (req, res) => {
-  res.send("test");
-  // Controllers.likeController.deleteLike(req, res);
-});
+// router.get("/", (req, res) => {
+//   res.send("test");
+//   // Controllers.likeController.deleteLike(req, res);
+// });
+// Route to get a movie by ID
+router.get("/:movieId", movieController.getMovieById);
 
 // Route to submit ratings for a movie
 router.post("/rate/:movieId", async (req, res) => {

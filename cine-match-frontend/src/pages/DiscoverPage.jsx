@@ -15,7 +15,7 @@ function Discover() {
   // }, [user, navigate]);
 
   return (
-    <div className="discover">
+    <div>
       <h2>Discover Movies</h2>
       <MovieGrid page={1} moviesPerPage={20} />
     </div>

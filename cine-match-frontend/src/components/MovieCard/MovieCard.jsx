@@ -1,34 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, Typography, Grid, Paper } from "@mui/material";
-
-const cardStyle = {
-  marginBottom: "16px",
-  display: "flex",
-  flexDirection: "column",
-  height: "100%"
-};
-
-const titleStyle = {
-  marginBottom: "8px",
-  fontSize: "1.25rem"
-};
-
-const genreStyle = {
-  fontStyle: "italic",
-  color: "rgba(0, 0, 0, 0.54)",
-  marginBottom: "8px"
-};
-
-const descriptionStyle = {
-  marginBottom: "8px"
-};
-
-const backdropImageStyle = {
-  width: "100%",
-  height: "auto",
-  maxHeight: "300px",
-  objectFit: "cover"
-};
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  CardMedia,
+  CardActions,
+  Chip,
+  Divider
+} from "@mui/material";
 
 const MovieCard = ({ movieId }) => {
   const [movie, setMovie] = useState(null);
@@ -50,19 +30,34 @@ const MovieCard = ({ movieId }) => {
   }
 
   return (
-    <Card style={cardStyle}>
-      <img
-        src={movie.backdropImageUrl}
-        alt={movie.title}
-        style={backdropImageStyle}
+    <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <CardMedia
+        component="div"
+        sx={{
+          // 16:9
+          pt: "56.25%"
+        }}
+        image={movie.backdropImageUrl}
       />
-      <CardContent>
-        <Typography variant="h5" style={titleStyle}>
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Typography gutterBottom variant="h5" component="h2">
           {movie.title}
         </Typography>
-        <Typography style={genreStyle}>{movie.genre.join(", ")}</Typography>
-        <Typography style={descriptionStyle}>{movie.description}</Typography>
+        <Typography sx={{ mb: 2 }} color="text.secondary">
+          {movie.releaseYear}
+        </Typography>
+        <Divider sx={{ my: 1 }} />
+        <Typography variant="body2" color="text.secondary">
+          {movie.description}
+        </Typography>
       </CardContent>
+      <Divider />
+      <CardActions>
+        <Chip label={`Rating: ${movie.averageRating}`} color="primary" />
+        <Button size="small" color="primary">
+          View Details
+        </Button>
+      </CardActions>
     </Card>
   );
 };

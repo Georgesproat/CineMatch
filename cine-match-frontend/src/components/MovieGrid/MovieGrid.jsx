@@ -1,4 +1,12 @@
 import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Grid,
+  Typography,
+  Paper,
+  Divider,
+  Chip
+} from "@mui/material";
 import MovieCard from "../MovieCard/MovieCard";
 
 const MovieGrid = ({ page, moviesPerPage }) => {
@@ -17,11 +25,19 @@ const MovieGrid = ({ page, moviesPerPage }) => {
   }, [page, moviesPerPage]);
 
   return (
-    <div className="movie-grid">
-      {movies.map((movie) => (
-        <MovieCard key={movie.id} movie={movie} />
-      ))}
-    </div>
+    <Container maxWidth="md">
+      <Typography variant="h4" component="h2" sx={{ mt: 4 }}>
+        Movie Grid
+      </Typography>
+      <Divider sx={{ my: 2 }} />
+      <Grid container spacing={2}>
+        {movies.map((movie) => (
+          <Grid item key={movie.id} xs={12} sm={6} md={4}>
+            <MovieCard movie={movie} />
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   );
 };
 

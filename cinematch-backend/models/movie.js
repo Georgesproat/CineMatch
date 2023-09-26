@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const movieSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  tmdbId: { type: Number, required: true, unique: true }, // Add this field
+  tmdbId: { type: Number, required: true, unique: true }, 
   description: { type: String, required: true },
   releaseYear: { type: Number, required: true },
   averageRating: { type: Number, default: 0 },
