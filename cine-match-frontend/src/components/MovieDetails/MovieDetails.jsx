@@ -1,96 +1,99 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Container,
-  Card,
-  CardContent,
-  CardMedia,
-  CardActions,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Button,
+  Typography,
   Divider,
   Chip,
+  Box,
   Grid,
   Paper,
-  Link
+  Card,
+  CardContent,
+  CardMedia
 } from "@mui/material";
+import StarRating from "../StarRating/StarRating";
 
-const MovieDetails = ({ movieId }) => {
-  const [movie, setMovie] = useState(null);
+const MovieDetails = ({ open, onClose, movie }) => {
+  const [userRatings, setUserRatings] = useState({
+    storytelling: 0,
+    visuals: 0,
+    productionValue: 0,
+    performance: 0
+  });
 
-  useEffect(() => {
-    // Make an API request to fetch movie data by movieId
-    fetch(`/api/movies/${movieId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setMovie(data); // Assuming the API returns a movie object
-      })
-      .catch((error) => {
-        console.error("Error fetching movie data:", error);
-      });
-  }, [movieId]);
+  const handleRatingChange = (category, newValue) => {
+    setUserRatings((prevRatings) => ({
+      ...prevRatings,
+      [category]: newValue
+    }));
+  };
 
   if (!movie) {
-    return null; // You can render a loading indicator here
+    return null;
   }
 
   return (
-    <Container maxWidth="md">
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" color="inherit" component="div">
-            Movie Details
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Card sx={{ mt: 4 }}>
-        <CardMedia
-          component="div"
-          sx={{
-            // 16:9
-            pt: "56.25%"
-          }}
-          image={movie.backdropImageUrl}
-        />
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {movie.title}
-          </Typography>
-          <Typography sx={{ mb: 2 }} color="text.secondary">
-            {movie.releaseYear}
-          </Typography>
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="body2" color="text.secondary">
-            {movie.description}
-          </Typography>
-        </CardContent>
-        <Divider />
-        <CardActions>
-          <Chip label={`Rating: ${movie.averageRating}`} color="primary" />
-          <Button size="small" color="primary">
-            View Trailer
-          </Button>
-        </CardActions>
-      </Card>
-      <Paper elevation={3} sx={{ p: 2, mt: 4 }}>
-        <Typography variant="h6" component="div" sx={{ mb: 2 }}>
-          Cast & Crew
-        </Typography>
+    <Dialog open={open} onClose={onClose} maxWidth="md">
+      <DialogTitle>{movie.title}</DialogTitle>
+      <DialogContent>
         <Grid container spacing={2}>
-          {movie.credits.map((credit) => (
-            <Grid item xs={6} sm={4} md={3} key={credit.crewMember.id}>
-              <Link href={`/cast/${credit.crewMember.id}`}>
-                {credit.crewMember.name}
-              </Link>
-              <Typography variant="caption" color="text.secondary">
-                {credit.role}
-              </Typography>
-            </Grid>
-          ))}
+          <Grid item xs={12} sm={4}>
+            <Card elevation={3}>
+              <CardMedia
+                component="img"
+                src={movie.posterImageUrl}
+                alt={movie.title}
+                height="100%"
+              />
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={8}>
+            <Typography variant="body1">{movie.description}</Typography>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="body2">
+              Release Year: {movie.releaseYear}
+            </Typography>
+            <Chip label={`Rating: ${movie.averageRating}`} color="primary" />
+            <Divider sx={{ my: 2 }} />
+            <StarRating
+              label="Storytelling"
+              initialValue={userRatings.storytelling}
+              onChange={(newValue) =>
+                handleRatingChange("storytelling", newValue)
+              }
+            />
+            <StarRating
+              label="Visuals"
+              initialValue={userRatings.visuals}
+              onChange={(newValue) => handleRatingChange("visuals", newValue)}
+            />
+            <StarRating
+              label="Production Value"
+              initialValue={userRatings.productionValue}
+              onChange={(newValue) =>
+                handleRatingChange("productionValue", newValue)
+              }
+            />
+            <StarRating
+              label="Performance"
+              initialValue={userRatings.performance}
+              onChange={(newValue) =>
+                handleRatingChange("performance", newValue)
+              }
+            />
+          </Grid>
         </Grid>
-      </Paper>
-    </Container>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

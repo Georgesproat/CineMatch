@@ -1,27 +1,37 @@
 const Movie = require("../models/movie");
 
-// // Get a movie by its ID
-// const getMovieById = async (req, res) => {
 
-//   console.log(req.params.movieId)
-//   // try {
-//   //   const movie = await Movie.findById(req.params.movieId); 
-//   //   if (!movie) {
-//   //     return res.status(404).json({ error: "Movie not found" });
-//   //   }
-//   //   res.status(200).json(movie);
-//   // } catch (error) {
-//   //   res.status(500).json({ error: error.message });
-//   // }
-// };
+// Get all movies with pagination
+const getAllMovies = async (req, res) => {
+  const { page, limit } = req.query;
+
+  try {
+    const totalMovies = await Movie.countDocuments();
+
+    if (!page || !limit || isNaN(page) || isNaN(limit)) {
+      return res.status(400).json({ error: "Invalid page or limit parameters" });
+    }
+
+    const movies = await Movie.find()
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
+    res.status(200).json({ movies, totalMovies });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 // Get a movie by its ID
 const getMovieById = async (req, res) => {
   try {
     const movieId = req.params.movieId;
-    
+
     if (!movieId) {
-      return res.status(400).json({ error: "Movie ID is missing in the request" });
+      return res
+        .status(400)
+        .json({ error: "Movie ID is missing in the request" });
     }
 
     const movie = await Movie.findById(movieId);
@@ -102,5 +112,6 @@ const getRatingsAndReviews = async (req, res) => {
 module.exports = {
   getRatingsAndReviews,
   submitRatingAndReview,
-  getMovieById
+  getMovieById,
+  getAllMovies
 };

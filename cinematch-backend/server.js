@@ -19,7 +19,7 @@ app.use(express.json());
 
 // Mount user routes
 app.use("/api/user", userRoutes);
-app.use("/api/movie", movieRoutes);
+app.use("/api/movies", movieRoutes);
 
 const PORT = process.env.PORT || 3000;
 
