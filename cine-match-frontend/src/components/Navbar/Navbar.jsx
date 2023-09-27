@@ -29,7 +29,8 @@ const Navbar = () => {
         <Typography variant="h6">CineMatch</Typography>
         <div style={{ flexGrow: 1 }} />
         <Tabs value={tabValue(location.pathname)} aria-label="navigation tabs">
-          <Tab label="Home" component={Link} to="/" />
+          <Tab label="Welcome" component={Link} to="/" />
+          <Tab label="Home" component={Link} to="/home" />
           <Tab label="Discover" component={Link} to="/discover" />
           {/* Add more tabs for other sections as needed */}
         </Tabs>

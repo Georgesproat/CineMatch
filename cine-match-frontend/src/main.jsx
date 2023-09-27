@@ -1,11 +1,11 @@
 import React from "react";
-import ReactDOM from "react-dom/client"; 
+import { createRoot } from "react-dom/client"; // Update the import
 import App from "./App.jsx";
 import "./index.css";
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from "./context/authContext";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
       <Router>

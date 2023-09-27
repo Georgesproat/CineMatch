@@ -6,7 +6,7 @@ import AppRoutes from "./routes/AppRoutes";
 import lightTheme from "./theme/lightTheme";
 import darkTheme from "./theme/darkTheme";
 
-function App() {
+function App({ isAuthenticated }) {
   const [theme, setTheme] = useState(lightTheme);
 
   const toggleTheme = () => {
@@ -16,8 +16,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Navbar toggleTheme={toggleTheme} />
-      <AppRoutes />
+      <Navbar toggleTheme={toggleTheme} isAuthenticated={isAuthenticated} />
+      <AppRoutes isAuthenticated={isAuthenticated} />
     </ThemeProvider>
   );
 }

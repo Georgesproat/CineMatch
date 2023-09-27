@@ -1,5 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
+import { useAuth } from "..//../context/authContext";
+import axiosInstance from "..//../axiosConfig";
+
+
 import {
   Container,
   styled,
@@ -40,6 +45,9 @@ const StyledImage = styled("img")(({ theme }) => ({
 }));
 
 function LoginForm() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -61,7 +69,27 @@ function LoginForm() {
       if (response.ok) {
         // Login was successful
         console.log("Login successful!");
-        // You can redirect to the user dashboard or perform any other action
+        const userData = await response.json();
+        const token = userData.token;
+        localStorage.setItem("jwtToken", token);
+
+        // Use the axiosInstance for authenticated requests
+        axiosInstance
+          .get("/api/user/login")
+          .then((response) => {
+            // Handle the response here
+            console.log("Authenticated request response:", response.data);
+
+            // Update the user's authentication state
+            login(userData);
+
+            // Navigate to the "/home" route
+            navigate("/home");
+          })
+          .catch((error) => {
+            // Handle errors here
+            console.error("Error making authenticated request:", error);
+          });
       } else {
         // Handle login error
         console.error("Login failed");
