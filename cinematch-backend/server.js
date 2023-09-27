@@ -4,8 +4,10 @@ const path = require("path");
 const mongoDBURI = "mongodb://127.0.0.1/CineMatch";
 const userRoutes = require("./routes/userRoutes");
 const movieRoutes = require("./routes/movieRoutes");
+const ratingsRoutes = require("./routes/ratingsRoutes");
+const crewScoresRoutes = require("./routes/crewScoresRoutes");
 require("dotenv").config();
-const cors = require("cors"); // Import the cors package
+const cors = require("cors"); 
 
 let dbConnect = require("./dbConnect");
 
@@ -20,6 +22,8 @@ app.use(express.json());
 // Mount user routes
 app.use("/api/user", userRoutes);
 app.use("/api/movies", movieRoutes);
+app.use("/api/ratings", ratingsRoutes);
+app.use("/api/crewScores", crewScoresRoutes);
 
 const PORT = process.env.PORT || 3000;
 

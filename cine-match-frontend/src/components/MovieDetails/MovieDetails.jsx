@@ -36,6 +36,50 @@ const MovieDetails = ({ open, onClose, movie }) => {
     return null;
   }
 
+  const submitRatings = () => {
+    // Fetch user ID from your JWT token (assuming it's stored in a cookie or local storage)
+    const token = localStorage.getItem("your_jwt_token"); // Replace with the actual name of your JWT token
+    let userId = null;
+
+    if (token) {
+      try {
+        // Decode the JWT token to get user information
+        const decodedToken = jwt_decode(token); // You'll need to import the jwt_decode library
+        userId = decodedToken.userId; // Replace 'userId' with the key that holds the user ID in your JWT payload
+      } catch (error) {
+        console.error("Error decoding JWT token:", error);
+      }
+    }
+
+    if (!userId) {
+      console.error("User ID not found in JWT token");
+      return;
+    }
+
+    // Make a POST request to your backend API to submit ratings
+    const requestBody = {
+      movieId: movie.id,
+      userRatings,
+      userId // Add user ID to the request body
+    };
+
+    fetch("http://localhost:3000/api/ratings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestBody)
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Handle success or show a confirmation message
+        console.log("Ratings submitted successfully:", data);
+      })
+      .catch((error) => {
+        console.error("Error submitting ratings:", error);
+      });
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md">
       <DialogTitle>{movie.title}</DialogTitle>
