@@ -15,10 +15,15 @@ const MovieCard = ({ movieId }) => {
 
   useEffect(() => {
     // Make an API request to fetch movie data by movieId
-    fetch(`/api/movies/${movieId}`)
+    fetch(`/api/movie/${movieId}`, {
+      headers: {
+        // Include the Origin header with frontend's domain
+        Origin: " http://localhost:5173/" 
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
-        setMovie(data); // Assuming the API returns a movie object
+        setMovie(data);
       })
       .catch((error) => {
         console.error("Error fetching movie data:", error);
@@ -26,7 +31,7 @@ const MovieCard = ({ movieId }) => {
   }, [movieId]);
 
   if (!movie) {
-    return null; // You can render a loading indicator here
+    return null; 
   }
 
   return (

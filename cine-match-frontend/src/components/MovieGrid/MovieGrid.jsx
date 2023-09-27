@@ -14,10 +14,15 @@ const MovieGrid = ({ page, moviesPerPage }) => {
 
   useEffect(() => {
     // Fetch the list of movies from your backend based on the current page
-    fetch(`/api/movies?page=${page}&limit=${moviesPerPage}`)
+    fetch(`/api/movies?page=${page}&limit=${moviesPerPage}`, {
+      headers: {
+        // Include the Origin header with frontend's domain
+        Origin: " http://localhost:5173/"
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
-        setMovies(data); // Assuming the API returns an array of movies
+        setMovies(data); 
       })
       .catch((error) => {
         console.error("Error fetching movies:", error);

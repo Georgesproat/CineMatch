@@ -39,35 +39,44 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const StyledImage = styled("img")(({ theme }) => ({
-  maxWidth: "100%" 
+  maxWidth: "100%"
 }));
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    username: "",
     email: "",
-    password: "",
-    allowExtraEmails: false
+    password: ""
   });
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    const inputValue = type === "checkbox" ? checked : value;
-    setFormData({ ...formData, [name]: inputValue });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleRegistration = async (event) => {
     event.preventDefault();
-    console.log(formData);
 
     try {
-      // Your registration logic here...
+      // Construct the user registration data
+      const userData = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      };
+
+      const response = await fetch("http://localhost:3000/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(userData)
+      });
 
       if (response.ok) {
         // Registration was successful
         console.log("Registration successful!");
-        // Redirect to the login page or perform any other action
+        // You can redirect to the login page or perform any other action
       } else {
         // Handle registration error
         console.error("Registration failed");
@@ -105,28 +114,15 @@ function RegisterForm() {
               </Typography>
               <StyledForm onSubmit={handleRegistration}>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      autoComplete="given-name"
-                      name="firstName"
-                      required
-                      fullWidth
-                      id="firstName"
-                      label="First Name"
-                      autoFocus
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid item xs={12}>
                     <TextField
                       required
                       fullWidth
-                      id="lastName"
-                      label="Last Name"
-                      name="lastName"
-                      autoComplete="family-name"
-                      value={formData.lastName}
+                      id="username"
+                      label="Username"
+                      name="username"
+                      autoComplete="username"
+                      value={formData.username}
                       onChange={handleInputChange}
                     />
                   </Grid>
@@ -155,24 +151,11 @@ function RegisterForm() {
                       onChange={handleInputChange}
                     />
                   </Grid>
-                  <Grid item xs={12}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={formData.allowExtraEmails}
-                          onChange={handleInputChange}
-                          name="allowExtraEmails"
-                          color="primary"
-                        />
-                      }
-                      label="I want to receive inspiration, marketing promotions and updates via email."
-                    />
-                  </Grid>
                 </Grid>
                 <StyledButton type="submit" fullWidth variant="contained">
                   Sign Up
                 </StyledButton>
-                <Grid container justifyContent="flex-end">
+                <Grid container justifyContent="center">
                   <Grid item>
                     <RouterLink to="/login" variant="body2">
                       Already have an account? Sign in

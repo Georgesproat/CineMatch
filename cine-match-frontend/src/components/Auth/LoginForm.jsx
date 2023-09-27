@@ -1,44 +1,67 @@
-import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
+import React, { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import {
+  Container,
+  styled,
+  TextField,
+  Typography,
+  Button,
+  Grid,
+  Box,
+  Avatar,
+  CssBaseline
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import logo from "..//../assets/logo-color.png";
+
+const defaultTheme = createTheme();
+
+const StyledContainer = styled(Container)(({ theme }) => ({
+  marginTop: theme.spacing(4),
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "100vh"
+}));
+
+const StyledForm = styled("form")(({ theme }) => ({
+  width: "100%",
+  marginTop: theme.spacing(3)
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(3, 0, 2)
+}));
+
+const StyledImage = styled("img")(({ theme }) => ({
+  maxWidth: "100%"
+}));
 
 function LoginForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password")
-    });
 
-    // Perform the login logic here, similar to your handleLogin function in LoginForm
     try {
-      const response = await fetch("/api/user/login", {
+      // Construct the login data
+      const loginData = {
+        email: event.target.email.value,
+        password: event.target.password.value
+      };
+
+      const response = await fetch("http://localhost:3000/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          email: data.get("email"),
-          password: data.get("password")
-        })
+        body: JSON.stringify(loginData)
       });
 
       if (response.ok) {
-        // Login was successful, handle as needed
+        // Login was successful
         console.log("Login successful!");
+        // You can redirect to the user dashboard or perform any other action
       } else {
         // Handle login error
         console.error("Login failed");
@@ -49,18 +72,16 @@ function LoginForm() {
   };
 
   return (
-    <ThemeProvider theme={createTheme()}>
-      <Container component="main" maxWidth="xs">
+    <ThemeProvider theme={defaultTheme}>
+      <StyledContainer component="main" maxWidth="md">
         <CssBaseline />
-        <Grid
-          container
-          justifyContent="center"
-          alignItems="center"
-          minHeight="100vh"
-        >
-          {/* Use Grid to center content */}
-          <Grid item xs={12} sm={8} md={6}>
-            {/* Adjust width for different screen sizes */}
+        <Grid container spacing={2}>
+          {/* Left side: Image */}
+          <Grid item xs={12} sm={6}>
+            <StyledImage src={logo} alt="Logo" />
+          </Grid>
+          {/* Right side: Form */}
+          <Grid item xs={12} sm={6}>
             <Box
               sx={{
                 display: "flex",
@@ -76,12 +97,7 @@ function LoginForm() {
               <Typography component="h1" variant="h5">
                 Sign in
               </Typography>
-              <Box
-                component="form"
-                onSubmit={handleSubmit}
-                noValidate
-                sx={{ mt: 2 }}
-              >
+              <StyledForm onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
                 <TextField
                   margin="normal"
                   required
@@ -102,35 +118,22 @@ function LoginForm() {
                   id="password"
                   autoComplete="current-password"
                 />
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Remember me"
-                />
-                <Button
+                <StyledButton
                   type="submit"
                   fullWidth
                   variant="contained"
                   sx={{ mt: 3 }}
                 >
                   Sign In
-                </Button>
-                <Grid container>
-                  <Grid item xs>
-                    <Link href="#" variant="body2">
-                      Forgot password?
-                    </Link>
-                  </Grid>
-                  <Grid item xs>
-                    <RouterLink to="/register" variant="body2">
-                      Don't have an account? Sign up
-                    </RouterLink>
-                  </Grid>
-                </Grid>
-              </Box>
+                </StyledButton>
+                <RouterLink to="/register" variant="body2">
+                  Don't have an account? Sign up
+                </RouterLink>
+              </StyledForm>
             </Box>
           </Grid>
         </Grid>
-      </Container>
+      </StyledContainer>
     </ThemeProvider>
   );
 }
