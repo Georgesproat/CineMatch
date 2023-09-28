@@ -7,15 +7,14 @@ import {
   Button,
   Typography,
   Divider,
-  Chip,
-  Box,
   Grid,
-  Paper,
   Card,
   CardContent,
-  CardMedia
+  CardMedia,
+  ThemeProvider
 } from "@mui/material";
 import StarRating from "../StarRating/StarRating";
+import { muiTheme } from "../../theme/muiTheme";
 
 const MovieDetails = ({ open, onClose, movie }) => {
   const [userRatings, setUserRatings] = useState({
@@ -58,7 +57,7 @@ const MovieDetails = ({ open, onClose, movie }) => {
 
     // Make a POST request to your backend API to submit ratings
     const requestBody = {
-      movieId: movie.id,
+      movieId: movie._id, // Assuming 'movieId' is the correct property
       userRatings,
       userId // Add user ID to the request body
     };
@@ -81,63 +80,86 @@ const MovieDetails = ({ open, onClose, movie }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md">
-      <DialogTitle>{movie.title}</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
-            <Card elevation={3}>
-              <CardMedia
-                component="img"
-                src={movie.posterImageUrl}
-                alt={movie.title}
-                height="100%"
+    <ThemeProvider theme={muiTheme}>
+      <Dialog open={open} onClose={onClose} maxWidth="md">
+        <DialogTitle
+          sx={{
+            backgroundColor: "#050517",
+            color: "#FFA400"
+          }}
+        >
+          {movie.title}
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            backgroundColor: "#050517",
+            color: "#E5E5E5"
+          }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <Card elevation={3}>
+                <CardMedia
+                  component="img"
+                  src={movie.posterImageUrl}
+                  alt={movie.title}
+                  height="100%"
+                />
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={8}>
+              <Typography variant="body1" sx={{ color: "#E5E5E5" }}>
+                {movie.description}
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="body2" sx={{ color: "#E5E5E5" }}>
+                Release Year: {movie.releaseYear}
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              <StarRating
+                label="Storytelling"
+                initialValue={userRatings.storytelling}
+                onChange={(newValue) =>
+                  handleRatingChange("storytelling", newValue)
+                }
               />
-            </Card>
+              <StarRating
+                label="Performance"
+                initialValue={userRatings.performance}
+                onChange={(newValue) =>
+                  handleRatingChange("performance", newValue)
+                }
+              />
+              <StarRating
+                label="Production Value"
+                initialValue={userRatings.productionValue}
+                onChange={(newValue) =>
+                  handleRatingChange("productionValue", newValue)
+                }
+              />
+              <StarRating
+                label="Visuals"
+                initialValue={userRatings.visuals}
+                onChange={(newValue) => handleRatingChange("visuals", newValue)}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={8}>
-            <Typography variant="body1">{movie.description}</Typography>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="body2">
-              Release Year: {movie.releaseYear}
-            </Typography>
-            <Chip label={`Rating: ${movie.averageRating}`} color="primary" />
-            <Divider sx={{ my: 2 }} />
-            <StarRating
-              label="Storytelling"
-              initialValue={userRatings.storytelling}
-              onChange={(newValue) =>
-                handleRatingChange("storytelling", newValue)
-              }
-            />
-            <StarRating
-              label="Visuals"
-              initialValue={userRatings.visuals}
-              onChange={(newValue) => handleRatingChange("visuals", newValue)}
-            />
-            <StarRating
-              label="Production Value"
-              initialValue={userRatings.productionValue}
-              onChange={(newValue) =>
-                handleRatingChange("productionValue", newValue)
-              }
-            />
-            <StarRating
-              label="Performance"
-              initialValue={userRatings.performance}
-              onChange={(newValue) =>
-                handleRatingChange("performance", newValue)
-              }
-            />
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Close
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            backgroundColor: "#050517",
+            color: "#E5E5E5"
+          }}
+        >
+          <Button onClick={onClose} color="primary">
+            Close
+          </Button>
+          <Button onClick={submitRatings} color="primary">
+            Submit Ratings
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </ThemeProvider>
   );
 };
 

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
 import AuthForm from "./AuthForm";
-
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -50,14 +48,14 @@ function RegisterForm() {
     }
   };
 
-   return (
-     <AuthForm
-       formTitle="Sign in"
-       onSubmit={handleSubmit}
-       buttonText="Sign In"
-       error={error}
-     />
-   );
+  return (
+    <AuthForm
+      formTitle="Sign up"
+      onSubmit={handleRegistration} // Fixed the function name here
+      buttonText="Sign Up"
+      error={error}
+    />
+  );
 }
 
 export default RegisterForm;

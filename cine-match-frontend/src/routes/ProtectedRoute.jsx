@@ -1,15 +1,15 @@
 import React from "react";
-import { Route, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = ({ element: Element, ...rest }) => {
-  const isAuthenticated = localStorage.getItem("jwtToken") !== null;
+function ProtectedRoute({ redirectPath = "/login" }) {
+  const isAuthenticated = localStorage.getItem("jwtToken");
 
-  return (
-    <Route
-      {...rest}
-      element={isAuthenticated ? <Element /> : <Navigate to="/login" />}
-    />
-  );
-};
+  if (!isAuthenticated) {
+    return <Navigate to={redirectPath} replace />;
+  } else {
+    
+    return null;
+  }
+}
 
 export default ProtectedRoute;

@@ -11,10 +11,9 @@ import {
   CssBaseline
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import logo from "..//../assets/logo-color.png";
-
-const defaultTheme = createTheme();
+import { ThemeProvider } from "@mui/material/styles";
+import logo from "../../assets/logo-color.png";
+import { customColors, muiTheme } from "../../theme/muiTheme";
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(4),
@@ -22,16 +21,26 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  minHeight: "100vh"
+  minHeight: "100vh",
+  backgroundColor: theme.palette.background.default,
+  color: theme.palette.text.primary
 }));
 
 const StyledForm = styled("form")(({ theme }) => ({
   width: "100%",
-  marginTop: theme.spacing(3)
+  marginTop: theme.spacing(3),
+  "& input::placeholder": {
+    color: customColors.lapisLazuli
+  }
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
-  margin: theme.spacing(3, 0, 2)
+  margin: theme.spacing(3, 0, 2),
+  backgroundColor: customColors.orangeWeb,
+  color: theme.palette.text.primary,
+  "&:hover": {
+    backgroundColor: customColors.lapisLazuli
+  }
 }));
 
 const StyledImage = styled("img")(({ theme }) => ({
@@ -51,9 +60,9 @@ function AuthForm({ formTitle, onSubmit, buttonText, error }) {
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <ThemeProvider theme={muiTheme}>
+      <CssBaseline />
       <StyledContainer component="main" maxWidth="md">
-        <CssBaseline />
         <Grid container spacing={2}>
           {/* Left side: Image */}
           <Grid item xs={12} sm={6}>
@@ -93,6 +102,9 @@ function AuthForm({ formTitle, onSubmit, buttonText, error }) {
                       autoComplete="username"
                       value={formData.username}
                       onChange={handleInputChange}
+                      InputLabelProps={{
+                        style: { color: customColors.lapisLazuli }
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -105,6 +117,9 @@ function AuthForm({ formTitle, onSubmit, buttonText, error }) {
                       autoComplete="email"
                       value={formData.email}
                       onChange={handleInputChange}
+                      InputLabelProps={{
+                        style: { color: customColors.lapisLazuli }
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -118,6 +133,9 @@ function AuthForm({ formTitle, onSubmit, buttonText, error }) {
                       autoComplete="new-password"
                       value={formData.password}
                       onChange={handleInputChange}
+                      InputLabelProps={{
+                        style: { color: customColors.lapisLazuli }
+                      }}
                     />
                   </Grid>
                 </Grid>

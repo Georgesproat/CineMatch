@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Rating, Typography } from "@mui/material";
+import { Rating, Typography, ThemeProvider } from "@mui/material";
+import { muiTheme } from "..//../theme/muiTheme"; 
+import StarIcon from "@mui/icons-material/Star"; 
 
 const StarRating = ({ label, initialValue, onChange }) => {
   const [rating, setRating] = useState(initialValue);
@@ -10,17 +12,21 @@ const StarRating = ({ label, initialValue, onChange }) => {
   };
 
   return (
-    <div>
-      <Typography variant="subtitle2" gutterBottom>
-        {label}
-      </Typography>
-      <Rating
-        name={label}
-        value={rating}
-        precision={0.5} 
-        onChange={handleRatingChange}
-      />
-    </div>
+    <ThemeProvider theme={muiTheme}>
+      <div>
+        <Typography variant="subtitle2" gutterBottom>
+          {label}
+        </Typography>
+        <Rating
+          name={label}
+          value={rating}
+          precision={0.5}
+          onChange={handleRatingChange}
+          emptyIcon={<StarIcon style={{ color: "#145C9E" }} />} 
+          icon={<StarIcon style={{ color: "#FFA400" }} />} 
+        />
+      </div>
+    </ThemeProvider>
   );
 };
 

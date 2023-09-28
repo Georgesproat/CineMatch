@@ -28,12 +28,6 @@ const getMovieById = async (req, res) => {
   try {
     const movieId = req.params.movieId;
 
-    if (!movieId) {
-      return res
-        .status(400)
-        .json({ error: "Movie ID is missing in the request" });
-    }
-
     const movie = await Movie.findById(movieId);
 
     if (!movie) {
@@ -50,6 +44,22 @@ const getMovieById = async (req, res) => {
     }
 
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Search for movies by title
+const searchMoviesByTitle = async (req, res) => {
+  try {
+    const searchTerm = req.query.term;
+
+    const movies = await Movie.find({
+      title: { $regex: searchTerm, $options: "i" }, // Case-insensitive search
+    });
+
+    res.json({ results: movies });
+  } catch (error) {
+    console.error("Error performing search:", error);
+    res.status(500).json({ error: "An error occurred during the search." });
   }
 };
 
@@ -113,5 +123,6 @@ module.exports = {
   getRatingsAndReviews,
   submitRatingAndReview,
   getMovieById,
-  getAllMovies
+  getAllMovies,
+  searchMoviesByTitle
 };

@@ -14,7 +14,8 @@ function AppRoutes({ isAuthenticated, ...props }) {
     <Routes>
       <Route path="/" element={<Welcome {...props} />} />
       <Route path="/home" element={<ProtectedRoute><HomePage {...props} /></ProtectedRoute>}/>
-      <Route path="/discover" element={<ProtectedRoute><DiscoverPage {...props} /></ProtectedRoute>}/>
+      {/* <Route path="/discover" element={<ProtectedRoute><DiscoverPage {...props} /></ProtectedRoute>}/> */}
+      <Route path="/discover" element={<DiscoverPage {...props} />}/>
       <Route path="/login" element={<LoginPage {...props} />} />
       <Route path="/register" element={<RegisterPage {...props} />} />
       <Route path="*" element={<NotFoundPage />} />
