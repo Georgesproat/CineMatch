@@ -1,33 +1,23 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import Welcome from "../pages/WelcomePage";
-import Home from "../pages/HomePage";
-import Discover from "../pages/DiscoverPage";
-import Login from "../pages/LoginPage";
-import Register from "../pages/RegistrationPage";
-import NotFound from "../pages/NotFoundPage";
-
-const PrivateRoute = ({ element, isAuthenticated }) => {
-  return isAuthenticated ? element : <Navigate to="/login" />;
-};
+import HomePage from "../pages/HomePage";
+import DiscoverPage from "../pages/DiscoverPage";
+import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegistrationPage";
+import NotFoundPage from "../pages/NotFoundPage";
+import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes({ isAuthenticated, ...props }) {
+
   return (
     <Routes>
       <Route path="/" element={<Welcome {...props} />} />
-      <Route
-        path="/home"
-        element={
-          <PrivateRoute
-            element={<Home {...props} />}
-            isAuthenticated={isAuthenticated}
-          />
-        }
-      />
-      <Route path="/discover" element={<Discover {...props} />} />
-      <Route path="/login" element={<Login {...props} />} />
-      <Route path="/register" element={<Register {...props} />} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="/home" element={<ProtectedRoute><HomePage {...props} /></ProtectedRoute>}/>
+      <Route path="/discover" element={<ProtectedRoute><DiscoverPage {...props} /></ProtectedRoute>}/>
+      <Route path="/login" element={<LoginPage {...props} />} />
+      <Route path="/register" element={<RegisterPage {...props} />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
