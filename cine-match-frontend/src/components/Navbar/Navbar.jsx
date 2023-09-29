@@ -1,19 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { AppBar, Toolbar, Typography, IconButton, Tab } from "@mui/material";
 import { Link } from "react-router-dom";
 import Logo from "../../assets/logo-color.png";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { ThemeProvider } from "@mui/material/styles";
 import { muiTheme } from "../../theme/muiTheme";
+import ProfileMenu from "./ProfileMenu";
 
 const Navbar = () => {
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  const toggleProfileMenu = () => {
+    setProfileMenuOpen(!profileMenuOpen);
+  };
   return (
     <ThemeProvider theme={muiTheme}>
       <AppBar
         position="static"
         color="primary"
         sx={{
-          borderBottom: "2px solid #A30015" 
+          borderBottom: "2px solid #A30015"
         }}
       >
         <Toolbar>
@@ -76,14 +82,19 @@ const Navbar = () => {
           <IconButton
             edge="end"
             color="inherit"
-            component={Link}
-            to="/profile"
             aria-label="profile"
+            onClick={toggleProfileMenu}
           >
             <AccountCircleIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
+      {profileMenuOpen && (
+        <ProfileMenu
+          isOpen={profileMenuOpen}
+          onRequestClose={toggleProfileMenu}
+        />
+      )}
     </ThemeProvider>
   );
 };

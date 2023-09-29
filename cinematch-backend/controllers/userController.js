@@ -42,7 +42,7 @@ const register = async (req, res) => {
   }
 };
 
-//User Login Controller
+// login controller include the user ID in the JWT token
 const login = async (req, res) => {
   // Access and validate user input
   const { email, password } = req.body;
@@ -68,19 +68,20 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials." });
     }
 
-    // Generate a JSON Web Token (JWT) for the authenticated user
+    // Generate a JSON Web Token (JWT) for the authenticated user, including user ID
     const secretKey = "your-secret-key"; // Replace with your secret key
     const token = jwt.sign({ userId: user._id }, secretKey, {
       expiresIn: "1h"
     });
 
-    // Respond to the client with the generated JWT
-    res.json({ token });
+    // Respond to the client with the generated JWT and user ID
+    res.json({ token, userId: user._id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error." });
   }
 };
+
 
 // Get user profile
 const getUserProfile = async (req, res) => {
@@ -103,31 +104,25 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// Update user profile
-const updateUserProfile = async (req, res) => {
-  try {
-    const { username, email } = req.body;
+// Update user username
+const updateUsername = async (req, res) => {
+  const { userId, newUsername } = req.body;
 
-    // Fetch the user document from the database
-    const user = await User.findById(req.userId);
+  try {
+    // Find the user by their ID
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Update user profile fields
-    if (username) {
-      user.username = username;
-    }
-    if (email) {
-      user.email = email;
-    }
+    // Update the username
+    user.username = newUsername;
 
-    // Save the updated user profile
+    // Save the updated user
     await user.save();
 
-    // Respond with a success message
-    res.json({ message: "Profile updated successfully." });
+    res.json({ message: "Username updated successfully." });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error." });
@@ -138,5 +133,5 @@ module.exports = {
   register,
   login,
   getUserProfile,
-  updateUserProfile
+  updateUsername
 };

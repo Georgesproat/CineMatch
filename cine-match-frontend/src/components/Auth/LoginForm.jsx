@@ -6,19 +6,18 @@ import { useAuth } from "..//../context/AuthContext";
 function LoginForm() {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
-  const { login } = useAuth(); 
+  const { login } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      
       const loginData = {
         email: event.target.email.value,
         password: event.target.password.value
       };
 
-      const success = await login(loginData); 
+      const success = await login(loginData);
 
       if (success) {
         // Login was successful
