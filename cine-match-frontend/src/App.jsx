@@ -4,16 +4,19 @@ import { ThemeProvider } from "@mui/material/styles";
 import Navbar from "./components/Navbar/Navbar";
 import AppRoutes from "./routes/AppRoutes";
 import muiTheme from "./theme/muiTheme";
+import { AuthProvider } from "./context/authContext";
 
 function App({ isAuthenticated }) {
   const [theme, setTheme] = useState(muiTheme);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Navbar />
-      <AppRoutes isAuthenticated={isAuthenticated} />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Navbar />
+        <AppRoutes isAuthenticated={isAuthenticated} />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

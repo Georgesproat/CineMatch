@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import MovieGrid from "../components/MovieGrid/MovieGrid";
 
+
 function Discover() {
   const pageStyle = {
     backgroundColor: "#050517",

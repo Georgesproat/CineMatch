@@ -53,7 +53,7 @@ const searchMoviesByTitle = async (req, res) => {
     const searchTerm = req.query.term;
 
     const movies = await Movie.find({
-      title: { $regex: searchTerm, $options: "i" }, // Case-insensitive search
+      title: { $regex: searchTerm, $options: "i" }, 
     });
 
     res.json({ results: movies });
@@ -63,42 +63,66 @@ const searchMoviesByTitle = async (req, res) => {
   }
 };
 
-// Submit a rating and review for a movie
-const submitRatingAndReview = async (req, res) => {
+const submitMovieRating = async (req, res) => {
+  const { movieId } = req.params;
+  const { userId, ratings } = req.body;
+
   try {
-    // Access user ID from JWT token
-    const userId = req.user.id;
+    // Find the movie by ID
+    const movie = await Movie.findById(movieId);
 
-    // Extract data from the request body
-    const { rating, review } = req.body;
-    const movieId = req.params.movieId;
-
-    // Validate user input
-    if (!rating || rating < 1 || rating > 10) {
-      return res.status(400).json({ message: "Invalid rating." });
+    if (!movie) {
+      return res.status(404).json({ message: "Movie not found" });
     }
 
-    // Create a new rating and review document
-    const newRatingAndReview = {
-      user: userId,
-      movie: movieId,
-      rating,
-      review
-    };
-
-    // Save the rating and review to the database
-    await Movie.findByIdAndUpdate(movieId, {
-      $push: { ratingsAndReviews: newRatingAndReview }
+    // Update ratings for each category
+    Object.keys(ratings).forEach((category) => {
+      movie.ratings[category] = ratings[category];
     });
 
-    res
-      .status(201)
-      .json({ message: "Rating and review submitted successfully." });
+    // Map ratings to crew members based on credits
+    movie.credits.forEach((credit) => {
+      // Find the corresponding crew member by ID
+      const crewMember = credit.crewMember;
+
+      // Map ratings to crew members based on roles
+      switch (credit.role) {
+        case "director":
+        case "creator":
+        case "writer":
+          crewMember.storytelling += ratings.storytelling;
+          break;
+        case "camera":
+        case "lighting":
+        case "editing":
+          crewMember.visuals += ratings.visuals;
+          break;
+        case "art":
+        case "hairMakeup":
+        case "props":
+          crewMember.productionValue += ratings.productionValue;
+          break;
+        case "casting":
+        case "actor":
+          crewMember.performance += ratings.performance;
+          break;
+        case "sound":
+          crewMember.music += ratings.music;
+          break;
+        // Add more cases for other crew roles
+      }
+    });
+
+    // Save the updated movie and crew members
+    await movie.save();
+
+    res.status(200).json({ message: "Ratings updated successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 // Retrieve ratings and reviews for a movie
 const getRatingsAndReviews = async (req, res) => {
@@ -121,7 +145,7 @@ const getRatingsAndReviews = async (req, res) => {
 
 module.exports = {
   getRatingsAndReviews,
-  submitRatingAndReview,
+  submitMovieRating,
   getMovieById,
   getAllMovies,
   searchMoviesByTitle

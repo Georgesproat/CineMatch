@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AuthForm from "./AuthForm";
+import { useAuth } from "..//../context/AuthContext";
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ function RegisterForm() {
   });
 
   const [error, setError] = useState(null);
+  const { login } = useAuth(); // Get the login function from useAuth
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,15 +28,9 @@ function RegisterForm() {
         password: formData.password
       };
 
-      const response = await fetch("http://localhost:3000/api/user/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(userData)
-      });
+      const success = await login(userData); // Call the login function
 
-      if (response.ok) {
+      if (success) {
         // Registration was successful
         console.log("Registration successful!");
         // You can redirect to the login page or perform any other action
