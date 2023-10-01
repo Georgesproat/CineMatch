@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
-import { useAuth } from "..//..//context/AuthContext";
+import { useAuth } from "..//../context/AuthContext";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { customColors } from "..//../theme/muiTheme";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom"; 
 
 const customStyles = {
   overlay: {

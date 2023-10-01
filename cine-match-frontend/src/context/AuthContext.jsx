@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from "react";
-import jwtDecode from "jwt-decode"; 
 
 const AuthContext = createContext();
 
@@ -8,7 +7,10 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+
+const [user, setUser] = useState({ token, userId });
 
   const login = async (userData) => {
     try {
@@ -23,15 +25,12 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
 
-        // Decode the JWT token to extract user data, including user ID
-        const decodedToken = jwtDecode(data.token);
-        const userId = decodedToken.userId;
-
         // Store the JWT token in local storage
         localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.userId);
 
-        // Store the user data (including user ID) in the authentication context
-        setUser({ ...data, userId });
+        // Store the entire data object in the authentication context
+        setUser(data);
 
         return true;
       } else {
@@ -43,12 +42,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
   const logout = () => {
-    
     localStorage.removeItem("token");
-    setUser(null);
+    localStorage.removeItem("userId");
+    setUser({ token: null, userId: null });
   };
+
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
