@@ -5,7 +5,6 @@ const movieSchema = new mongoose.Schema({
   tmdbId: { type: Number, required: true, unique: true },
   description: { type: String, required: true },
   releaseYear: { type: Number, required: true },
-  averageRating: { type: Number, default: 0 },
   posterImageUrl: { type: String },
   backdropImageUrl: { type: String },
   genres: [{ type: String }], 
