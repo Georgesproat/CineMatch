@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 import {
   Dialog,
   DialogTitle,
@@ -9,7 +10,6 @@ import {
   Divider,
   Grid,
   Card,
-  CardContent,
   CardMedia,
   ThemeProvider
 } from "@mui/material";
@@ -24,6 +24,8 @@ const MovieDetails = ({ open, onClose, movie }) => {
     performance: 0
   });
 
+  const { user } = useAuth();
+
   const handleRatingChange = (category, newValue) => {
     setUserRatings((prevRatings) => ({
       ...prevRatings,
@@ -31,54 +33,118 @@ const MovieDetails = ({ open, onClose, movie }) => {
     }));
   };
 
-  if (!movie) {
-    return null;
-  }
+  // Fetch the user's previous ratings when the component mounts
+  useEffect(() => {
+    if (user && user.userId && movie) {
+      fetchUserRatings(movie._id, user.userId);
+    }
+  }, [user, movie]);
 
-  const submitRatings = () => {
-    // Fetch user ID from your JWT token (assuming it's stored in a cookie or local storage)
-    const token = localStorage.getItem("your_jwt_token"); // Replace with the actual name of your JWT token
-    let userId = null;
+  const fetchUserRatings = async (movieId, userId) => {
+    try {
+      // Make an API request to fetch user ratings for this movie
+      const response = await fetch(
+        `http://localhost:3000/api/ratings/${movieId}/user/${userId}`
+      );
 
-    if (token) {
-      try {
-        // Decode the JWT token to get user information
-        const decodedToken = jwt_decode(token); // You'll need to import the jwt_decode library
-        userId = decodedToken.userId; // Replace 'userId' with the key that holds the user ID in your JWT payload
-      } catch (error) {
-        console.error("Error decoding JWT token:", error);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched user ratings:", data.ratings);
+        // Convert fetched ratings to numbers if needed
+        setUserRatings({
+          storytelling: Number(data.ratings.storytellingRating),
+          visuals: Number(data.ratings.visualsRating),
+          productionValue: Number(data.ratings.productionValueRating),
+          performance: Number(data.ratings.performanceRating)
+        });
+      } else if (response.status === 404) {
+        // Handle the case where no ratings exist for this movie
+        console.log("No ratings found for this movie.");
+        // You can choose to set default ratings or leave them as they are
+        // setUserRatings({ storytelling: 0, visuals: 0, productionValue: 0, performance: 0 });
+      } else {
+        console.error("Error fetching user ratings:", response.statusText);
       }
+    } catch (error) {
+      console.error("Error fetching user ratings:", error);
     }
-
-    if (!userId) {
-      console.error("User ID not found in JWT token");
-      return;
-    }
-
-    // Make a POST request to your backend API to submit ratings
-    const requestBody = {
-      movieId: movie._id, // Assuming 'movieId' is the correct property
-      userRatings,
-      userId // Add user ID to the request body
-    };
-
-    fetch("http://localhost:3000/api/ratings", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(requestBody)
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Handle success or show a confirmation message
-        console.log("Ratings submitted successfully:", data);
-      })
-      .catch((error) => {
-        console.error("Error submitting ratings:", error);
-      });
   };
 
+
+  const submitRatings = async () => {
+    if (user && user.userId) {
+      // Construct the request body in the required format
+      const requestBody = {
+        movieId: movie._id,
+        userId: user.userId,
+        userRatings: {
+          storytelling: userRatings.storytelling,
+          visuals: userRatings.visuals,
+          productionValue: userRatings.productionValue,
+          performance: userRatings.performance
+        }
+      };
+
+      try {
+        // Check if a rating already exists for the user and movie
+        const checkResponse = await fetch(
+          `http://localhost:3000/api/ratings/${movie._id}/user/${user.userId}`
+        );
+
+        if (checkResponse.ok) {
+          // If a rating exists, update it using a PUT request
+          const updateResponse = await fetch(
+            `http://localhost:3000/api/ratings/${movie._id}/user/${user.userId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(requestBody)
+            }
+          );
+
+          if (updateResponse.ok) {
+            // Handle success or show a confirmation message
+            console.log("Ratings updated successfully");
+          } else {
+            // Handle error response from the API
+            const data = await updateResponse.json();
+            console.error("Error updating ratings:", data.error);
+          }
+        } else {
+          // If no rating exists, create a new rating using a POST request
+          const createResponse = await fetch(
+            "http://localhost:3000/api/ratings/submit",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(requestBody)
+            }
+          );
+
+          if (createResponse.ok) {
+            // Handle success or show a confirmation message
+            console.log("Ratings submitted successfully");
+          } else {
+            // Handle error response from the API
+            const data = await createResponse.json();
+            console.error("Error submitting ratings:", data.error);
+          }
+        }
+      
+    // Close the dialog once ratings are submitted
+      onClose();
+    } catch (error) {
+      console.error("Error submitting/updating ratings:", error);
+    }
+  } else {
+    // Handle the case where the user is not authenticated
+    console.error("User is not authenticated.");
+  }
+};
   return (
     <ThemeProvider theme={muiTheme}>
       <Dialog open={open} onClose={onClose} maxWidth="md">
@@ -116,30 +182,31 @@ const MovieDetails = ({ open, onClose, movie }) => {
                 Release Year: {movie.releaseYear}
               </Typography>
               <Divider sx={{ my: 2 }} />
+              {/* Editable Star Ratings */}
               <StarRating
                 label="Storytelling"
-                initialValue={userRatings.storytelling}
+                initialValue={userRatings.storytelling} // Set the value to user's rating
                 onChange={(newValue) =>
                   handleRatingChange("storytelling", newValue)
                 }
               />
               <StarRating
                 label="Performance"
-                initialValue={userRatings.performance}
+                initialValue={userRatings.performance} // Set the value to user's rating
                 onChange={(newValue) =>
                   handleRatingChange("performance", newValue)
                 }
               />
               <StarRating
                 label="Production Value"
-                initialValue={userRatings.productionValue}
+                initialValue={userRatings.productionValue} // Set the value to user's rating
                 onChange={(newValue) =>
                   handleRatingChange("productionValue", newValue)
                 }
               />
               <StarRating
                 label="Visuals"
-                initialValue={userRatings.visuals}
+                initialValue={userRatings.visuals} // Set the value to user's rating
                 onChange={(newValue) => handleRatingChange("visuals", newValue)}
               />
             </Grid>
