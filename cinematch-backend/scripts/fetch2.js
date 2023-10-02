@@ -4,7 +4,7 @@ const Movie = require("../models/movie");
 const Credit = require("../models/credit");
 const CrewMember = require("../models/crewMember");
 
-// Connect to MongoDB here
+
 mongoose.connect("mongodb://127.0.0.1/CineMatch", {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -18,10 +18,10 @@ mongoose.connection.once("open", async () => {
   console.log("Connected to MongoDB");
 
   try {
-    // Your TMDB API key
+    
     const apiKey = "0af1f375cc6c9924fe0cc1a1a6fb67ef";
     const language = "en-US";
-    let page = 1; // Start with the first page
+    let page = 1; 
 
     while (true) {
       // Fetch a page of movie IDs from TMDB
@@ -34,7 +34,7 @@ mongoose.connection.once("open", async () => {
       );
 
       if (movieIds.length === 0) {
-        // No more pages to fetch
+        
         break;
       }
 
@@ -49,7 +49,7 @@ mongoose.connection.once("open", async () => {
       });
 
       await Promise.all(promises);
-      page++; // Move to the next page
+      page++; 
     }
 
     console.log(
@@ -58,7 +58,7 @@ mongoose.connection.once("open", async () => {
   } catch (error) {
     console.error("Error fetching and storing data:", error);
   } finally {
-    // Close the MongoDB connection
+    
     mongoose.connection.close();
   }
 });
@@ -89,7 +89,7 @@ async function updateMovieInDatabase(movieData, movieId) {
       posterImageUrl: `https://image.tmdb.org/t/p/w500${movieData.poster_path}`,
       backdropImageUrl: `https://image.tmdb.org/t/p/w1280${movieData.backdrop_path}`,
       genres: genres
-      // Add more fields as needed
+      
     },
     { upsert: true, new: true }
   );
@@ -110,21 +110,21 @@ async function updateCreditsInDatabase(creditsData, movieId) {
         birthplace: castMember.place_of_birth,
         knownForDepartment: castMember.known_for_department,
         gender: castMember.gender,
-        creditsCount: castMember.popularity // You can adjust this field
-        // Add more fields as needed
+        creditsCount: castMember.popularity 
+        
       },
       { upsert: true, new: true }
     );
 
-    // For actors, create a Credit document
+    
     const credit = new Credit({
       movie: movieId,
       crewMember: cast._id,
-      role: "actor", // Adjust this based on your model
-      department: castMember.known_for_department, // Assign knownForDepartment
-      character: castMember.character, // Assign character name
-      popularity: castMember.popularity // Assign popularity score
-      // Map other fields from creditsData to your model as needed
+      role: "actor", 
+      department: castMember.known_for_department,
+      character: castMember.character, 
+      popularity: castMember.popularity 
+      
     });
     bulkOps.push(credit);
   }
@@ -140,8 +140,8 @@ async function updateCreditsInDatabase(creditsData, movieId) {
         birthplace: crewMember.place_of_birth,
         knownForDepartment: crewMember.known_for_department,
         gender: crewMember.gender,
-        creditsCount: crewMember.popularity // You can adjust this field
-        // Add more fields as needed
+        creditsCount: crewMember.popularity 
+        
       },
       { upsert: true, new: true }
     );
@@ -150,14 +150,14 @@ async function updateCreditsInDatabase(creditsData, movieId) {
     const credit = new Credit({
       movie: movieId,
       crewMember: crew._id,
-      role: crewMember.job, // Adjust this based on your model
-      department: crewMember.department, // Assign department
-      job: crewMember.job, // Assign job
-      popularity: crewMember.popularity // Assign popularity score
-      // Map other fields from creditsData to your model as needed
+      role: crewMember.job, 
+      department: crewMember.department, 
+      job: crewMember.job, 
+      popularity: crewMember.popularity 
+      
     });
     bulkOps.push(credit);
   }
 
-  await Credit.insertMany(bulkOps); // Insert all Credit documents at once
+  await Credit.insertMany(bulkOps); 
 }
