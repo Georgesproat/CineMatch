@@ -8,7 +8,9 @@ const movieSchema = new mongoose.Schema({
   averageRating: { type: Number, default: 0 },
   posterImageUrl: { type: String },
   backdropImageUrl: { type: String },
+  genres: [{ type: String }], 
 
+  // Ratings
   ratings: {
     storytelling: { type: Number, default: 0 },
     cinematography: { type: Number, default: 0 },
@@ -28,7 +30,6 @@ const movieSchema = new mongoose.Schema({
       productionValue: { type: Number, default: 0 },
       performance: { type: Number, default: 0 },
       music: { type: Number, default: 0 }
-      
     }
   ],
 
@@ -36,7 +37,7 @@ const movieSchema = new mongoose.Schema({
     {
       crewMember: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "CrewMember",
+        ref: "Credit",
         required: true
       },
       role: String

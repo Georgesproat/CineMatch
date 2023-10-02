@@ -1,6 +1,45 @@
 const Ratings = require("../models/rating");
 const CrewScore = require("../models/crewScore");
-const CrewMember = require("../models/crewMember");
+const Credit = require("../models/credits");
+
+// Define the mapping of crew roles to rating categories here
+const roleToCategoryMapping = {
+  "Executive Producer": "storytelling",
+  "Director": "storytelling",
+  "Story Supervisor": "storytelling",
+  "Screenplay": "storytelling",
+  "Story": "storytelling",
+  "Producer": "storytelling",
+  "Screenstory": "storytelling",
+  "Writer": "storytelling",
+  "Gaffer": "visuals",
+  "CG Supervisor": "visuals",
+  "Visual Effects Producer": "visuals",
+  "Director of Photography": "visuals",
+  "Animation Supervisor": "visuals",
+  "Editor": "visuals",
+  "Lighting Supervisor": "visuals",
+  "Visual Effects Supervisor": "visuals",
+  "Animation Director": "visuals",
+  "Animation Technical Director": "visuals",
+  "Camera Operator": "visuals",
+  "Set Designer": "production value",
+  "Hair Department Head": "production value",
+  "Set Decoration": "production value",
+  "Costume Supervisor": "production value",
+  "Production Design": "production value",
+  "Effects Supervisor": "production value",
+  "Costume Design": "production value",
+  "Makeup Artist": "production value",
+  "Art Department Manager": "production value",
+  "Supervising Art Director": "production value",
+  "Art Direction": "production value",
+  "Costumer": "production value",
+  "Casting": "performance",
+  "Actor": "performance"
+};
+
+
 
 // Controller method to submit or update ratings
 const submitOrUpdateRatings = async (req, res) => {
@@ -35,25 +74,37 @@ const submitOrUpdateRatings = async (req, res) => {
         });
       }
 
-      // Fetch crew members associated with the movie
-      const crewMembers = await CrewMember.find({ movie: movieId });
+      // Fetch crew members associated with the movie and their roles
+      const credits = await Credit.find({ movie: movieId });
 
       // Calculate updated crew member ratings based on user ratings
-      const crewScores = crewMembers.map((crewMember) => {
-        // Calculate the average of user ratings for different categories
-        const averageUserRating =
-          (userRatings.storytelling +
-            userRatings.visuals +
-            userRatings.productionValue +
-            userRatings.performance) /
-          4; // Assuming 4 categories
+      const crewScores = credits
+        .map((credit) => {
+          const role = credit.role;
+          const category = roleToCategoryMapping[role];
 
-        return {
-          user: userId,
-          crewMember: crewMember._id,
-          score: averageUserRating
-        };
-      });
+          if (!category) {
+            // Handle the case where the crew role doesn't have a mapping
+            console.log(`No mapping found for role: ${role}`);
+            return null;
+          }
+
+          // Use the user rating for the corresponding category
+          const userRating = userRatings[category];
+
+          // Logging for debugging
+          console.log(`Processing crew member: ${credit.crewMember}`);
+          console.log(
+            `Role: ${role}, Category: ${category}, User Rating: ${userRating}`
+          );
+
+          return {
+            user: userId,
+            crewMember: credit.crewMember,
+            score: userRating
+          };
+        })
+        .filter((score) => score !== null); // Remove null entries
 
       // Create or update crew score entries
       await CrewScore.bulkWrite(
@@ -103,6 +154,6 @@ const getUserRatings = async (req, res) => {
 };
 
 module.exports = {
-  submitOrUpdateRatings, // Updated method for both submitting and updating ratings
+  submitOrUpdateRatings, 
   getUserRatings
 };
