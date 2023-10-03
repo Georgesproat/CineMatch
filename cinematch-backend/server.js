@@ -5,13 +5,16 @@ const mongoDBURI = "mongodb://127.0.0.1/CineMatch";
 const userRoutes = require("./routes/userRoutes");
 const movieRoutes = require("./routes/movieRoutes");
 const ratingsRoutes = require("./routes/ratingsRoutes");
-const crewScoresRoutes = require("./routes/crewScoresRoutes");
+
 require("dotenv").config();
 const cors = require("cors"); 
+
 
 let dbConnect = require("./dbConnect");
 
 const app = express();
+
+
 
 // Middleware for CORS (Cross-Origin Resource Sharing)
 app.use(cors());
@@ -23,7 +26,7 @@ app.use(express.json());
 app.use("/api/user", userRoutes);
 app.use("/api/movies", movieRoutes);
 app.use("/api/ratings", ratingsRoutes);
-app.use("/api/crewScores", crewScoresRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 
