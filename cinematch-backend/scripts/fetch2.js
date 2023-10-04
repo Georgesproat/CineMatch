@@ -4,7 +4,6 @@ const Movie = require("../models/movie");
 const Credit = require("../models/credit");
 const CrewMember = require("../models/crewMember");
 
-
 mongoose.connect("mongodb://127.0.0.1/CineMatch", {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -18,10 +17,13 @@ mongoose.connection.once("open", async () => {
   console.log("Connected to MongoDB");
 
   try {
-    
     const apiKey = "0af1f375cc6c9924fe0cc1a1a6fb67ef";
     const language = "en-US";
-    let page = 1; 
+    let page = 1;
+
+    // Define a threshold for the minimum credits count and popularity
+    const creditsCountThreshold = 10; 
+    const popularityThreshold = 1; 
 
     while (true) {
       // Fetch a page of movie IDs from TMDB
@@ -34,7 +36,6 @@ mongoose.connection.once("open", async () => {
       );
 
       if (movieIds.length === 0) {
-        
         break;
       }
 
@@ -45,11 +46,16 @@ mongoose.connection.once("open", async () => {
         ]);
 
         const movie = await updateMovieInDatabase(movieData, movieId);
-        await updateCreditsInDatabase(creditsData, movie._id);
+        await updateCreditsInDatabase(
+          creditsData,
+          movie._id,
+          creditsCountThreshold,
+          popularityThreshold
+        );
       });
 
       await Promise.all(promises);
-      page++; 
+      page++;
     }
 
     console.log(
@@ -58,7 +64,6 @@ mongoose.connection.once("open", async () => {
   } catch (error) {
     console.error("Error fetching and storing data:", error);
   } finally {
-    
     mongoose.connection.close();
   }
 });
@@ -89,17 +94,28 @@ async function updateMovieInDatabase(movieData, movieId) {
       posterImageUrl: `https://image.tmdb.org/t/p/w500${movieData.poster_path}`,
       backdropImageUrl: `https://image.tmdb.org/t/p/w1280${movieData.backdrop_path}`,
       genres: genres
-      
     },
     { upsert: true, new: true }
   );
   return movie;
 }
 
-async function updateCreditsInDatabase(creditsData, movieId) {
+async function updateCreditsInDatabase(
+  creditsData,
+  movieId,
+  creditsCountThreshold,
+  popularityThreshold
+) {
   const bulkOps = [];
 
   for (const castMember of creditsData.cast) {
+    if (
+      castMember.popularity < popularityThreshold ||
+      castMember.credits_count < creditsCountThreshold
+    ) {
+      continue;
+    }
+
     const cast = await CrewMember.findOneAndUpdate(
       { tmdbId: castMember.id },
       {
@@ -110,26 +126,30 @@ async function updateCreditsInDatabase(creditsData, movieId) {
         birthplace: castMember.place_of_birth,
         knownForDepartment: castMember.known_for_department,
         gender: castMember.gender,
-        creditsCount: castMember.popularity 
-        
+        creditsCount: castMember.credits_count
       },
       { upsert: true, new: true }
     );
 
-    
     const credit = new Credit({
       movie: movieId,
       crewMember: cast._id,
-      role: "actor", 
+      role: "actor",
       department: castMember.known_for_department,
-      character: castMember.character, 
-      popularity: castMember.popularity 
-      
+      character: castMember.character,
+      popularity: castMember.popularity
     });
     bulkOps.push(credit);
   }
 
   for (const crewMember of creditsData.crew) {
+    if (
+      crewMember.popularity < popularityThreshold ||
+      crewMember.credits_count < creditsCountThreshold
+    ) {
+      continue;
+    }
+
     const crew = await CrewMember.findOneAndUpdate(
       { tmdbId: crewMember.id },
       {
@@ -140,24 +160,21 @@ async function updateCreditsInDatabase(creditsData, movieId) {
         birthplace: crewMember.place_of_birth,
         knownForDepartment: crewMember.known_for_department,
         gender: crewMember.gender,
-        creditsCount: crewMember.popularity 
-        
+        creditsCount: crewMember.credits_count
       },
       { upsert: true, new: true }
     );
 
-    // For crew members, create a Credit document
     const credit = new Credit({
       movie: movieId,
       crewMember: crew._id,
-      role: crewMember.job, 
-      department: crewMember.department, 
-      job: crewMember.job, 
-      popularity: crewMember.popularity 
-      
+      role: crewMember.job,
+      department: crewMember.department,
+      job: crewMember.job,
+      popularity: crewMember.popularity
     });
     bulkOps.push(credit);
   }
 
-  await Credit.insertMany(bulkOps); 
+  await Credit.insertMany(bulkOps);
 }
