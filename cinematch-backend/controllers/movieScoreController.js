@@ -1,100 +1,119 @@
 const MovieScore = require("../models/movieScore");
 const CrewScore = require("../models/crewScore");
 const CrewMember = require("../models/crewMember");
+const Credit = require("../models/credit");
 const Movie = require("../models/movie");
 
-// Define your weightings (these are example weights)
 const weightings = {
-  Production: 2,
+  Production: 3,
   Directing: 5,
   Writing: 4,
   Editing: 3,
   Camera: 3,
-  Lighting: 1.5,
-  "Visual Effects": 1.5,
-  Art: 1.5,
-  "Costume & Make-Up": 1.5,
+  Lighting: 2,
+  "Visual Effects": 2,
+  Art: 2,
+  "Costume & Make-Up": 2,
   Acting: 4
-  // Add more roles and departments with their respective weights
 };
 
-// Function to calculate the default movie score (you can customize this logic)
-const calculateDefaultMovieScore = async (movieId) => {
-  // Calculate the default score logic (e.g., average based on other data)
-  // Replace this with your own logic
-  const defaultScore = 5.0; // Example default score
-  return defaultScore;
+const calculateDefaultMovieScore = () => {
+  console.log("Calculating Default Movie Score");
+  return 5.0;
 };
 
-// Function to create default MovieScore entries for all movies
-const createDefaultMovieScores = async (userId) => {
+const calculateMovieScore = async (movieId) => {
   try {
-    const allMovies = await Movie.find({}); // Fetch all movies
+    // Retrieve all credits for the movie
+    const credits = await Credit.find({ movie: movieId });
 
-    for (const movie of allMovies) {
-      const existingMovieScore = await MovieScore.findOne({ movie: movie._id });
+    // Extract unique crew members from credits
+    const uniqueCrewMembers = [
+      ...new Set(credits.map((credit) => credit.crewMember))
+    ];
 
-      if (!existingMovieScore) {
-        // Calculate an average score for the movie (you can modify this logic)
-        const defaultScore = await calculateDefaultMovieScore(movie._id);
+    // Create objects to store total scores and counts for each department
+    const departmentScores = {};
+    const departmentCounts = {};
 
-        // Create a new MovieScore entry with the default score and user
-        await MovieScore.create({
-          movie: movie._id,
-          score: defaultScore,
-          user: userId // Set the user ID from the parameter
-        });
+    // Calculate the weighted sum of crew scores for each department
+    for (const crewMemberId of uniqueCrewMembers) {
+      const crewScores = await CrewScore.find({ crewMember: crewMemberId });
+      if (crewScores.length === 0) {
+        continue; // Handle the case where there are no CrewScores for a crew member
+      }
+
+      // Calculate the weighted sum for this crew member
+      const totalCrewScore = crewScores.reduce((acc, score) => {
+        const weight = weightings[score.crewMember.knownForDepartment] || 1;
+        return acc + score.score * weight;
+      }, 0);
+
+      // Update department totals and counts
+      const crewMember = await CrewMember.findById(crewMemberId);
+      const department = crewMember.knownForDepartment;
+      if (department) {
+        departmentScores[department] =
+          (departmentScores[department] || 0) + totalCrewScore;
+        departmentCounts[department] = (departmentCounts[department] || 0) + 1;
       }
     }
-  } catch (error) {
-    console.error("Error creating default MovieScores:", error);
-    throw error;
-  }
-};
 
-// Function to update movie scores for all movies associated with crew members
-const updateMovieScoresForCrewMembers = async (crewMemberIds, userId) => {
-  try {
-    // Retrieve movie IDs associated with the crew members
-    const movieIdsToUpdate = await CrewScore.distinct("movie", {
-      crewMember: { $in: crewMemberIds }
-    });
-
-    for (const movieId of movieIdsToUpdate) {
-      // Retrieve crew scores associated with the movie
-      const crewScores = await CrewScore.find({ movie: movieId });
-
-      // Calculate the updated movie score based on weighted crew scores
-      const weightedCrewScores = calculateWeightedCrewScores(crewScores);
-      const updatedScore = calculateMovieScore(weightedCrewScores);
-
-      // Create or update the MovieScore document
-      await createOrUpdateMovieScore(movieId, updatedScore, userId);
+    // Calculate the average score for each department
+    const departmentAverages = {};
+    for (const department in departmentScores) {
+      departmentAverages[department] =
+        departmentScores[department] / departmentCounts[department];
     }
+    // Log intermediate values
+    console.log(`Department Scores:`, departmentScores);
+    console.log(`Department Counts:`, departmentCounts);
+
+    // Calculate the final movie score by averaging department scores
+    const totalWeightedScore = Object.keys(departmentAverages).reduce(
+      (acc, department) => {
+        const weight = weightings[department] || 1;
+        return acc + departmentAverages[department] * weight;
+      },
+      0
+    );
+    const averageMovieScore =
+      totalWeightedScore / Object.keys(departmentAverages).length;
+
+    console.log(
+      `Calculated movie score for movieId ${movieId}: ${averageMovieScore}`
+    ); 
+
+    return averageMovieScore;
   } catch (error) {
-    console.error("Error updating movie scores for crew members:", error);
+    console.error("Error calculating movie score:", error);
     throw error;
   }
 };
 
-// Function to create or update a MovieScore document
-const createOrUpdateMovieScore = async (movieId, updatedScore, userId) => {
+const createOrUpdateMovieScore = async (userId, movieId) => {
+  console.log(`Creating/Updating Movie Score for Movie ID: ${movieId}`);
   try {
+    // Calculate the updated movie score based on all crew member scores
+    const updatedScore = await calculateMovieScore(movieId);
+
     // Find the existing MovieScore document or create a new one
     let existingMovieScore = await MovieScore.findOne({ movie: movieId });
 
     if (!existingMovieScore) {
       existingMovieScore = new MovieScore({
+        user: userId,
         movie: movieId,
-        score: updatedScore,
-        user: userId // Set the user ID from the parameter
+        score: updatedScore
       });
     } else {
       // Update the existing MovieScore
       existingMovieScore.score = updatedScore;
-      existingMovieScore.user = userId; // Set the user ID from the parameter
-      await existingMovieScore.save();
     }
+
+    // Save the MovieScore document
+    await existingMovieScore.save();
+    console.log(`Movie Score Saved: ${existingMovieScore}`);
   } catch (error) {
     console.error(
       `Error creating or updating MovieScore for movie ${movieId}:`,
@@ -104,28 +123,60 @@ const createOrUpdateMovieScore = async (movieId, updatedScore, userId) => {
   }
 };
 
-// Function to calculate weighted crew scores
-const calculateWeightedCrewScores = (crewScores) => {
-  return crewScores.map((score) => {
-    const weight = weightings[score.crewMember.role] || 1; // Default weight is 1
-    score.score *= weight; // Apply the weight to the score
-    return score;
-  });
+const createOrUpdateMovieScoresForCrewMembers = async (
+  crewMemberIds,
+  userId,
+  Credit
+) => {
+  try {
+    // Find distinct movie IDs that have credits associated with any of the given crew member IDs
+    const movieIds = await Credit.distinct("movie", {
+      crewMember: { $in: crewMemberIds }
+    });
+
+    // Fetch the actual movie documents based on the extracted movie IDs
+    const movies = await Movie.find({ _id: { $in: movieIds } });
+
+    // Update MovieScores for each movie
+    for (const movie of movies) {
+      console.log(`Processing Movie ID: ${movie._id}`);
+      // Calculate the updated movie score based on all crew member scores
+      const updatedScore = await calculateMovieScore(movie._id);
+
+      // Find the existing MovieScore document
+      let existingMovieScore = await MovieScore.findOne({
+        movie: movie._id,
+        user: userId
+      });
+
+      if (!existingMovieScore) {
+        // If it doesn't exist, create a new one
+        existingMovieScore = new MovieScore({
+          user: userId,
+          movie: movie._id,
+          score: updatedScore
+        });
+      } else {
+        // Update the existing MovieScore
+        existingMovieScore.score = updatedScore;
+      }
+
+      // Save the MovieScore document
+      await existingMovieScore.save();
+      console.log(
+        `Movie Score Saved for Movie ID ${movie._id}: ${existingMovieScore.score}`
+      );
+    }
+  } catch (error) {
+    console.error("Error creating or updating MovieScores:", error);
+    throw error;
+  }
 };
 
-// Function to calculate the movie score based on weighted crew scores
-const calculateMovieScore = (weightedCrewScores) => {
-  if (weightedCrewScores.length === 0) {
-    return 0;
-  }
-  const totalScore = weightedCrewScores.reduce(
-    (acc, score) => acc + score.score,
-    0
-  );
-  return totalScore / weightedCrewScores.length;
-};
 
 module.exports = {
-  createDefaultMovieScores,
-  updateMovieScoresForCrewMembers
+  calculateDefaultMovieScore,
+  createOrUpdateMovieScore,
+  calculateMovieScore,
+  createOrUpdateMovieScoresForCrewMembers
 };
