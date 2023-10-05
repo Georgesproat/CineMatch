@@ -8,8 +8,11 @@ import {
   Grid,
   Box,
   Avatar,
-  CssBaseline
+  CssBaseline,
+  Link
 } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { ThemeProvider } from "@mui/material/styles";
 import logo from "../../assets/logo-color.png";
@@ -47,7 +50,14 @@ const StyledImage = styled("img")(({ theme }) => ({
   maxWidth: "100%"
 }));
 
-function AuthForm({ formTitle, onSubmit, buttonText, error }) {
+function AuthForm({
+  formTitle,
+  onSubmit,
+  buttonText,
+  error,
+  successMessage,
+  registerLink 
+}) {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -89,6 +99,12 @@ function AuthForm({ formTitle, onSubmit, buttonText, error }) {
                 {error && (
                   <Typography variant="body2" color="error">
                     {error}
+                  </Typography>
+                )}
+                {/* Success Message */}
+                {successMessage && (
+                  <Typography variant="body2" color="success">
+                    {successMessage}
                   </Typography>
                 )}
                 <Grid container spacing={2}>
@@ -142,6 +158,8 @@ function AuthForm({ formTitle, onSubmit, buttonText, error }) {
                 <StyledButton type="submit" fullWidth variant="contained">
                   {buttonText}
                 </StyledButton>
+
+                {registerLink}
               </StyledForm>
             </Box>
           </Grid>

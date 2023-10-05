@@ -109,6 +109,11 @@ const submitOrUpdateRatings = async (req, res) => {
     // Remove null entries from crewScores
     const validCrewScores = crewScores.filter((score) => score !== null);
 
+    // Get a list of unique crew members whose scores have changed
+    const changedCrewMemberIds = Array.from(
+      new Set(validCrewScores.map((score) => score.crewMember))
+    );
+
     // Update crew scores asynchronously
     await Promise.all(
       validCrewScores.map(async (score) => {
@@ -153,13 +158,11 @@ const submitOrUpdateRatings = async (req, res) => {
     // Create or update the MovieScore with the user and movie information
     await createOrUpdateMovieScore(userId, movieId);
 
-    const uniqueCrewMemberIds = [
-      ...new Set(validCrewScores.map((score) => score.crewMember))
-    ];
+  
 
     // Update MovieScores for all movies associated with the crew members
     await createOrUpdateMovieScoresForCrewMembers(
-      uniqueCrewMemberIds,
+      changedCrewMemberIds,
       userId,
       Credit
     );

@@ -48,9 +48,40 @@ const [user, setUser] = useState({ token, userId });
     setUser({ token: null, userId: null });
   };
 
+  const register = async (userData) => {
+    try {
+      console.log(JSON.stringify(userData));
+      const response = await fetch("http://localhost:3000/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(userData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+       
+        localStorage.setItem("token", data.token);
+        
+
+        
+        setUser(data);
+
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      return false;
+    }
+  };
+
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

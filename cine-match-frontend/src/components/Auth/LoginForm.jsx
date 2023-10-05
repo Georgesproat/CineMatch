@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import AuthForm from "./AuthForm";
 import { useAuth } from "../../context/authContext";
+import { Typography } from "@mui/material";
 
 function LoginForm() {
   const navigate = useNavigate();
@@ -33,13 +34,32 @@ function LoginForm() {
     }
   };
 
+  const registerLink = (
+    <RouterLink to="/register" color="primary">
+      Register here
+    </RouterLink>
+  );
+
   return (
-    <AuthForm
-      formTitle="Sign in"
-      onSubmit={handleSubmit}
-      buttonText="Sign In"
-      error={error}
-    />
+    <div>
+      <AuthForm
+        formTitle="Sign in"
+        onSubmit={handleSubmit}
+        buttonText="Sign In"
+        error={error}
+        registerLink={
+          <Typography variant="body2" color="#E5E5E5" align="center">
+            Not signed up?{" "}
+            <span
+              style={{ color: "#E5E5E5", cursor: "pointer" }}
+              onClick={() => navigate("/register")}
+            >
+              Register here
+            </span>
+          </Typography>
+        }
+      />
+    </div>
   );
 }
 

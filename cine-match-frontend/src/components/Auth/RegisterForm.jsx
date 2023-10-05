@@ -1,39 +1,32 @@
 import React, { useState } from "react";
 import AuthForm from "./AuthForm";
-import { useAuth } from "..//../context/AuthContext";
+import { useAuth } from "..//../context/authContext";
+import { useNavigate } from "react-router-dom";
 
 function RegisterForm() {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: ""
-  });
-
+  const navigate = useNavigate();
   const [error, setError] = useState(null);
-  const { login } = useAuth(); // Get the login function from useAuth
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  const { register } = useAuth();
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleRegistration = async (event) => {
     event.preventDefault();
 
     try {
-      // Construct the user registration data
       const userData = {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password
+        username: event.target.username.value,
+        email: event.target.email.value,
+        password: event.target.password.value
       };
 
-      const success = await login(userData); // Call the login function
+      console.log("User Data:", userData);
+      const success = await register(userData);
 
       if (success) {
         // Registration was successful
-        console.log("Registration successful!");
-        // You can redirect to the login page or perform any other action
+        setSuccessMessage("Registration successful. You can now log in.");
+        // Redirect to the login page
+        navigate("/login");
       } else {
         // Handle registration error
         setError("Registration failed. Please check your data.");
@@ -45,12 +38,15 @@ function RegisterForm() {
   };
 
   return (
-    <AuthForm
-      formTitle="Sign up"
-      onSubmit={handleRegistration} // Fixed the function name here
-      buttonText="Sign Up"
-      error={error}
-    />
+    <div>
+      <AuthForm
+        formTitle="Sign up"
+        onSubmit={handleRegistration}
+        buttonText="Sign Up"
+        error={error}
+        successMessage={successMessage}
+      />
+    </div>
   );
 }
 
