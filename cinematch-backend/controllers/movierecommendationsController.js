@@ -5,12 +5,11 @@ const getRecommendedMovies = async (req, res) => {
   const userId = req.query.userId;
 
   try {
-    
     // Fetch all movie scores for the user with a score above 10
     const allMovieScores = await MovieScore.find({
       user: userId,
-      score: { $gt: 10 } 
-    }).sort({ score: -1 }); 
+      score: { $gt: 10 }
+    }).sort({ score: -1 });
 
     // Fetch movies that have been rated by the user
     const userRatedMovies = await Ratings.find({
@@ -24,11 +23,6 @@ const getRecommendedMovies = async (req, res) => {
       (movieScore) => movieScore.movie
     );
 
-    // console.log(
-    //   "Recommended Movies with score above 10 (sorted):",
-    //   recommendedMovies
-    // );
-
     // Filter out movies that have already been rated by the user
     const filteredRecommendedMovies = recommendedMovies.filter((movieId) => {
       return !userRatedMovies.some(
@@ -38,18 +32,8 @@ const getRecommendedMovies = async (req, res) => {
       );
     });
 
-    // console.log(
-    //   "Final Recommended Movies (filtered):",
-    //   filteredRecommendedMovies
-    // );
-
     // Limit the result to the top 20 recommended movies
     const topRecommendedMovies = filteredRecommendedMovies.slice(0, 20);
-
-    // console.log(
-    //   "Final Recommended Movies (sorted and filtered):",
-    //   topRecommendedMovies
-    // );
 
     res.json(topRecommendedMovies);
   } catch (error) {
