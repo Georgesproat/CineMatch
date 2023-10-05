@@ -1,10 +1,10 @@
 import React from "react";
+import MovieRecommendations from "../components/MovieRecommendations/MovieRecommendations";
 
 const Home = () => {
   return (
     <div>
-      <h1>Welcome to CineMatch</h1>
-      <h2>We made it to home</h2>
+      <MovieRecommendations/>
     </div>
   );
 };
