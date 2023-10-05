@@ -22,41 +22,46 @@ mongoose.connection.once("open", async () => {
     let page = 1;
 
     // Define a threshold for the minimum credits count and popularity
-    const creditsCountThreshold = 10; 
-    const popularityThreshold = 1; 
+    const creditsCountThreshold = 15; 
+    const popularityThreshold = 4; 
 
-    while (true) {
-      // Fetch a page of movie IDs from TMDB
-      const movieIdsResponse = await axios.get(
-        `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=${language}&page=${page}`
-      );
+   while (true) {
+     // Fetch a page of movie IDs from TMDB
+     const movieIdsResponse = await axios.get(
+       `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=${language}&page=${page}`
+     );
 
-      const movieIds = movieIdsResponse.data.results.map(
-        (movieData) => movieData.id
-      );
+     const moviesData = movieIdsResponse.data.results;
 
-      if (movieIds.length === 0) {
-        break;
-      }
+     // Filter movies with a vote average (rating) below the threshold
+     const highRatedMoviesData = moviesData.filter(
+       (movieData) => movieData.vote_average >= 6
+     );
 
-      const promises = movieIds.map(async (movieId) => {
-        const [movieData, creditsData] = await Promise.all([
-          fetchMovieDetails(movieId, apiKey, language),
-          fetchCredits(movieId, apiKey)
-        ]);
+     const movieIds = highRatedMoviesData.map((movieData) => movieData.id);
 
-        const movie = await updateMovieInDatabase(movieData, movieId);
-        await updateCreditsInDatabase(
-          creditsData,
-          movie._id,
-          creditsCountThreshold,
-          popularityThreshold
-        );
-      });
+     if (movieIds.length === 0) {
+       break;
+     }
 
-      await Promise.all(promises);
-      page++;
-    }
+     const promises = movieIds.map(async (movieId) => {
+       const [movieData, creditsData] = await Promise.all([
+         fetchMovieDetails(movieId, apiKey, language),
+         fetchCredits(movieId, apiKey)
+       ]);
+
+       const movie = await updateMovieInDatabase(movieData, movieId);
+       await updateCreditsInDatabase(
+         creditsData,
+         movie._id,
+         creditsCountThreshold,
+         popularityThreshold
+       );
+     });
+
+     await Promise.all(promises);
+     page++;
+   }
 
     console.log(
       "Movies, credits, and crew members fetched and stored successfully."

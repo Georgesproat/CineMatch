@@ -5,35 +5,53 @@ const getRecommendedMovies = async (req, res) => {
   const userId = req.query.userId;
 
   try {
-    // Find high-scoring movieIds for the user
-    console.log("Fetching high-scoring movies...");
-    const highScoringMovies = await MovieScore.find({
+    
+    // Fetch all movie scores for the user with a score above 10
+    const allMovieScores = await MovieScore.find({
       user: userId,
-      score: { $gte: 8 }
-    }).distinct("movie");
+      score: { $gt: 10 } // $gt stands for greater than
+    }).sort({ score: -1 }); // Sort in descending order of score
 
-    console.log("High Scoring Movies:", highScoringMovies);
-
-    // Find movies that haven't been rated by the user
-    console.log("Fetching user-rated movies...");
-    const userRatedMovies = await Ratings.find({ userId }).distinct("movieId");
+    // Fetch movies that have been rated by the user
+    const userRatedMovies = await Ratings.find({
+      userId
+    }).distinct("movieId");
 
     console.log("User Rated Movies:", userRatedMovies);
 
-    // Filter out movies that have already been rated
-    console.log("Filtering recommended movies...");
-    let recommendedMovies = highScoringMovies.filter(
-      (movieId) => !userRatedMovies.includes(movieId)
+    // Extract only the 'movie' field from each movieScore object
+    const recommendedMovies = allMovieScores.map(
+      (movieScore) => movieScore.movie
     );
 
-    console.log("Recommended Movies After Filtering:", recommendedMovies);
+    // console.log(
+    //   "Recommended Movies with score above 10 (sorted):",
+    //   recommendedMovies
+    // );
 
-    // Limit to the top 20 recommended movies
-    recommendedMovies = recommendedMovies.slice(0, 20);
+    // Filter out movies that have already been rated by the user
+    const filteredRecommendedMovies = recommendedMovies.filter((movieId) => {
+      return !userRatedMovies.some(
+        (userMovieId) =>
+          userMovieId.toString().toLowerCase() ===
+          movieId.toString().toLowerCase()
+      );
+    });
 
-    console.log("Final Recommended Movies:", recommendedMovies);
+    // console.log(
+    //   "Final Recommended Movies (filtered):",
+    //   filteredRecommendedMovies
+    // );
 
-    res.json(recommendedMovies);
+    // Limit the result to the top 20 recommended movies
+    const topRecommendedMovies = filteredRecommendedMovies.slice(0, 20);
+
+    // console.log(
+    //   "Final Recommended Movies (sorted and filtered):",
+    //   topRecommendedMovies
+    // );
+
+    res.json(topRecommendedMovies);
   } catch (error) {
     console.error("Error fetching recommended movies:", error);
     res.status(500).json({ error: "An error occurred" });

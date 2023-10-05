@@ -19,36 +19,7 @@ const MovieRecommendations = () => {
         if (response.ok) {
           const data = await response.json();
           setRecommendedMovies(data);
-
-          // Fetch movie details and convert ObjectIds to movieIds
-          const movieData = await Promise.all(
-            data.map(async (objectId) => {
-              try {
-                const movieResponse = await fetch(
-                  `http://localhost:3000/api/movies/${objectId}`
-                );
-
-                if (movieResponse.ok) {
-                  const movie = await movieResponse.json();
-                  return movie; // Use the whole movie data
-                } else {
-                  console.error(
-                    "Error fetching movie details:",
-                    movieResponse.statusText
-                  );
-                  return null;
-                }
-              } catch (error) {
-                console.error("Error fetching movie details:", error);
-                return null;
-              }
-            })
-          );
-
-          // Filter out null values (error cases) before setting the state
-          const filteredMovieData = movieData.filter((movie) => movie !== null);
-
-          setMovies(filteredMovieData);
+          fetchMovieDetails(data); // Fetch movie details when recommendedMovies change
         } else {
           console.error(
             "Error fetching recommended movies:",
@@ -57,6 +28,40 @@ const MovieRecommendations = () => {
         }
       } catch (error) {
         console.error("Error fetching recommended movies:", error);
+      }
+    };
+
+    const fetchMovieDetails = async (movieIds) => {
+      try {
+        const movieData = await Promise.all(
+          movieIds.map(async (movieId) => {
+            try {
+              const movieResponse = await fetch(
+                `http://localhost:3000/api/movies/${movieId}`
+              );
+
+              if (movieResponse.ok) {
+                const movie = await movieResponse.json();
+                return movie;
+              } else {
+                console.error(
+                  "Error fetching movie details:",
+                  movieResponse.statusText
+                );
+                return null;
+              }
+            } catch (error) {
+              console.error("Error fetching movie details:", error);
+              return null;
+            }
+          })
+        );
+
+        // Filter out null values (error cases) before setting the state
+        const filteredMovieData = movieData.filter((movie) => movie !== null);
+        setMovies(filteredMovieData);
+      } catch (error) {
+        console.error("Error fetching movie details:", error);
       }
     };
 

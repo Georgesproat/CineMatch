@@ -1,4 +1,5 @@
 const Movie = require("../models/movie");
+const mongoose = require("mongoose");
 
 
 // Get all movies with pagination

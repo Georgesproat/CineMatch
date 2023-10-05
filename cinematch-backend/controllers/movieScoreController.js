@@ -5,16 +5,16 @@ const Credit = require("../models/credit");
 const Movie = require("../models/movie");
 
 const weightings = {
-  Production: 3,
-  Directing: 5,
-  Writing: 4,
-  Editing: 3,
-  Camera: 3,
-  Lighting: 2,
-  "Visual Effects": 2,
-  Art: 2,
-  "Costume & Make-Up": 2,
-  Acting: 4
+  Production: 30,
+  Directing: 50,
+  Writing: 40,
+  Editing: 20,
+  Camera: 40,
+  Lighting: 30,
+  "Visual Effects": 20,
+  Art: 20,
+  "Costume & Make-Up": 15,
+  Acting: 30
 };
 
 const calculateDefaultMovieScore = () => {
