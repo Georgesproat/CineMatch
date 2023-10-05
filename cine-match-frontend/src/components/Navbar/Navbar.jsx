@@ -1,5 +1,18 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, IconButton, Tab } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Tab,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Divider
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
 import Logo from "../../assets/logo-color.png";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -9,17 +22,24 @@ import ProfileMenu from "./ProfileMenu";
 
 const Navbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const toggleProfileMenu = () => {
     setProfileMenuOpen(!profileMenuOpen);
   };
+
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+  };
+
   return (
     <ThemeProvider theme={muiTheme}>
       <AppBar
         position="static"
         color="primary"
         sx={{
-          borderBottom: "2px solid #A30015"
+          borderBottom: "2px solid #A30015",
+          justifyContent: "space-between"
         }}
       >
         <Toolbar>
@@ -52,40 +72,72 @@ const Navbar = () => {
           >
             CineMatch
           </Typography>
-          <Tab
-            label="Welcome"
-            component={Link}
-            to="/"
+          <Box
             sx={{
-              fontWeight: "bold",
-              color: "#A30015"
+              display: "flex",
+              alignItems: "center",
+              "@media (max-width: 768px)": {
+                display: "none"
+              }
             }}
-          />
-          <Tab
-            label="Home"
-            component={Link}
-            to="/home"
-            sx={{
-              fontWeight: "bold",
-              color: "#A30015"
-            }}
-          />
-          <Tab
-            label="Discover"
-            component={Link}
-            to="/discover"
-            sx={{
-              fontWeight: "bold",
-              color: "#A30015"
-            }}
-          />
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="profile"
-            onClick={toggleProfileMenu}
           >
-            <AccountCircleIcon />
+            <Tab
+              label="Welcome"
+              component={Link}
+              to="/"
+              sx={{
+                fontWeight: "bold",
+                color: "#A30015",
+                fontSize: "1.1rem",
+                marginRight: "1rem",
+                textTransform: "none" 
+              }}
+            />
+            <Tab
+              label="Home"
+              component={Link}
+              to="/home"
+              sx={{
+                fontWeight: "bold",
+                color: "#A30015",
+                fontSize: "1.1rem",
+                marginRight: "1rem",
+                textTransform: "none"
+              }}
+            />
+            <Tab
+              label="Discover"
+              component={Link}
+              to="/discover"
+              sx={{
+                fontWeight: "bold",
+                color: "#A30015",
+                fontSize: "1.1rem",
+                marginRight: "1rem",
+                textTransform: "none" 
+              }}
+            />
+            <IconButton
+              edge="end"
+              color="inherit"
+              aria-label="profile"
+              onClick={toggleProfileMenu}
+              sx={{ fontSize: "1rem", marginRight: "2rem" }}
+            >
+              <AccountCircleIcon />
+            </IconButton>
+          </Box>
+          <IconButton
+            color="inherit"
+            aria-label="menu"
+            onClick={toggleDrawer}
+            sx={{
+              display: { md: "none" },
+              fontSize: "2rem",
+              marginRight: "1rem"
+            }}
+          >
+            <MenuIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -95,6 +147,36 @@ const Navbar = () => {
           onRequestClose={toggleProfileMenu}
         />
       )}
+      <Drawer
+        anchor="right"
+        open={isDrawerOpen}
+        onClose={toggleDrawer}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: "250px",
+            backgroundColor: "#050517", 
+            color: "#A30015" 
+          }
+        }}
+      >
+        <List>
+          <ListItem button component={Link} to="/">
+            <ListItemText primary="Welcome" />
+          </ListItem>
+          <ListItem button component={Link} to="/home">
+            <ListItemText primary="Home" />
+          </ListItem>
+          <ListItem button component={Link} to="/discover">
+            <ListItemText primary="Discover" />
+          </ListItem>
+        </List>
+        <Divider />
+        <List>
+          <ListItem button onClick={toggleProfileMenu}>
+            <ListItemText primary="Profile" />
+          </ListItem>
+        </List>
+      </Drawer>
     </ThemeProvider>
   );
 };

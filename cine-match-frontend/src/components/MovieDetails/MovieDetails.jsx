@@ -60,8 +60,7 @@ const MovieDetails = ({ open, onClose, movie }) => {
       } else if (response.status === 404) {
         // Handle the case where no ratings exist for this movie
         console.log("No ratings found for this movie.");
-        // You can choose to set default ratings or leave them as they are
-        // setUserRatings({ storytelling: 0, visuals: 0, productionValue: 0, performance: 0 });
+        
       } else {
         console.error("Error fetching user ratings:", response.statusText);
       }
@@ -185,28 +184,28 @@ const MovieDetails = ({ open, onClose, movie }) => {
               {/* Editable Star Ratings */}
               <StarRating
                 label="Storytelling"
-                initialValue={userRatings.storytelling} // Set the value to user's rating
+                initialValue={userRatings.storytelling} 
                 onChange={(newValue) =>
                   handleRatingChange("storytelling", newValue)
                 }
               />
               <StarRating
                 label="Performance"
-                initialValue={userRatings.performance} // Set the value to user's rating
+                initialValue={userRatings.performance} 
                 onChange={(newValue) =>
                   handleRatingChange("performance", newValue)
                 }
               />
               <StarRating
                 label="Production Value"
-                initialValue={userRatings.productionValue} // Set the value to user's rating
+                initialValue={userRatings.productionValue} 
                 onChange={(newValue) =>
                   handleRatingChange("productionValue", newValue)
                 }
               />
               <StarRating
                 label="Visuals"
-                initialValue={userRatings.visuals} // Set the value to user's rating
+                initialValue={userRatings.visuals} 
                 onChange={(newValue) => handleRatingChange("visuals", newValue)}
               />
             </Grid>

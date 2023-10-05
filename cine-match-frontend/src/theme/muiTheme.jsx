@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 
-// Define your custom colors
+// Define custom colors
 export const customColors = {
   richBlack: "#050517ff",
   platinum: "#e5e5e5ff",
@@ -9,7 +9,7 @@ export const customColors = {
   carmine: "#a30015ff"
 };
 
-// Create a custom Material-UI theme
+// Material-UI theme
 export const muiTheme = createTheme({
   palette: {
     primary: {

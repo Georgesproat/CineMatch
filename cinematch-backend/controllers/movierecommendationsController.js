@@ -9,8 +9,8 @@ const getRecommendedMovies = async (req, res) => {
     // Fetch all movie scores for the user with a score above 10
     const allMovieScores = await MovieScore.find({
       user: userId,
-      score: { $gt: 10 } // $gt stands for greater than
-    }).sort({ score: -1 }); // Sort in descending order of score
+      score: { $gt: 10 } 
+    }).sort({ score: -1 }); 
 
     // Fetch movies that have been rated by the user
     const userRatedMovies = await Ratings.find({

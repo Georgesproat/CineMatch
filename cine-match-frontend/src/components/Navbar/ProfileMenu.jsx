@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
-import { useAuth } from "..//../context/AuthContext";
+import { useAuth } from "../../context/authContext";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -32,7 +32,7 @@ function ProfileMenu({ isOpen, onRequestClose }) {
   const [newUsername, setNewUsername] = useState("");
   const [showChangeUsername, setShowChangeUsername] = useState(false);
 
-  const navigate = useNavigate(); // Use useNavigate for navigation
+  const navigate = useNavigate(); 
 
   const handleChangeUsername = async () => {
     try {
@@ -63,7 +63,7 @@ function ProfileMenu({ isOpen, onRequestClose }) {
   const handleLogout = () => {
     logout();
     onRequestClose();
-    navigate("/"); // Use navigate to redirect to the welcome page
+    navigate("/"); 
   };
 
   return (

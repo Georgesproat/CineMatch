@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const ratingsSchema = new mongoose.Schema({
   movieId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Movie", // Reference to the Movie model
+    ref: "Movie", 
     required: true
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Reference to the User model
+    ref: "User", 
     required: true
   },
   storytellingRating: {

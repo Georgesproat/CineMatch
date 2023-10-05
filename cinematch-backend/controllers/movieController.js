@@ -110,7 +110,7 @@ const submitMovieRating = async (req, res) => {
         case "sound":
           crewMember.music += ratings.music;
           break;
-        // Add more cases for other crew roles
+        
       }
     });
 

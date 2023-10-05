@@ -22,10 +22,10 @@ const SearchBar = ({ onSearch }) => {
         component="form"
         onSubmit={handleSearch}
         sx={{
-          p: "5px", // Adjust padding for the entire bar
+          p: "5px", 
           display: "flex",
           alignItems: "center",
-          width: "50%", // Set width to 50% for half the page
+          width: "50%", 
           margin: "0", 
           border: "2px solid #145C9E", 
           borderRadius: "8px" 

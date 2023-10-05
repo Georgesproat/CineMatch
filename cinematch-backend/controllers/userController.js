@@ -93,7 +93,7 @@ const getUserProfile = async (req, res) => {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Return the user's profile data (excluding sensitive information like the password)
+    // Return the user's profile data 
     res.json({
       username: user.username,
       email: user.email
